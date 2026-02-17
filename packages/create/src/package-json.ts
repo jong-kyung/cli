@@ -63,6 +63,7 @@ export function createPackageJSON(options: Options) {
         jsx: 'tsx',
         fileRouter: options.mode === 'file-router',
         codeRouter: options.mode === 'code-router',
+        routerOnly: options.routerOnly === true,
         addOnEnabled: options.chosenAddOns.reduce<Record<string, boolean>>(
           (acc, addon) => {
             acc[addon.id] = true
@@ -95,6 +96,29 @@ export function createPackageJSON(options: Options) {
       packageJSON,
       options.starter.packageAdditions,
     )
+  }
+
+  if (options.routerOnly) {
+    if (options.framework.id === 'react-cra') {
+      delete packageJSON.dependencies?.['@tanstack/react-start']
+      delete packageJSON.dependencies?.['@tanstack/react-router-ssr-query']
+      packageJSON.devDependencies = {
+        ...(packageJSON.devDependencies ?? {}),
+        '@tanstack/router-plugin':
+          packageJSON.devDependencies?.['@tanstack/router-plugin'] ?? '^1.132.0',
+      }
+    }
+
+    if (options.framework.id === 'solid') {
+      delete packageJSON.dependencies?.['@tanstack/solid-start']
+      delete packageJSON.dependencies?.['@tanstack/solid-router-ssr-query']
+      delete packageJSON.scripts?.start
+      packageJSON.devDependencies = {
+        ...(packageJSON.devDependencies ?? {}),
+        '@tanstack/router-plugin':
+          packageJSON.devDependencies?.['@tanstack/router-plugin'] ?? '^1.133.20',
+      }
+    }
   }
 
   packageJSON.dependencies = sortObject(

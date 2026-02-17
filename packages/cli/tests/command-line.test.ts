@@ -291,6 +291,56 @@ describe('normalizeOptions', () => {
     expect(options?.typescript).toBe(true)
   })
 
+  it('should keep file-router mode in router-only compatibility mode', async () => {
+    const options = await normalizeOptions({
+      projectName: 'test',
+      routerOnly: true,
+    })
+
+    expect(options?.mode).toBe('file-router')
+  })
+
+  it('should ignore add-ons and deployment in router-only mode but keep toolchain', async () => {
+    __testRegisterFramework({
+      id: 'react-cra',
+      name: 'react',
+      getAddOns: () => [
+        {
+          id: 'form',
+          name: 'Form',
+          modes: ['file-router'],
+        },
+        {
+          id: 'nitro',
+          name: 'nitro',
+          modes: ['file-router'],
+          type: 'deployment',
+        },
+        {
+          id: 'biome',
+          name: 'Biome',
+          modes: ['file-router'],
+          type: 'toolchain',
+        },
+      ],
+    })
+
+    const options = await normalizeOptions(
+      {
+        projectName: 'test',
+        framework: 'react-cra',
+        routerOnly: true,
+        addOns: ['form'],
+        deployment: 'nitro',
+        toolchain: 'biome',
+      },
+      ['form'],
+      { forcedDeployment: 'nitro' },
+    )
+
+    expect(options?.chosenAddOns.map((a) => a.id)).toEqual(['biome'])
+  })
+
   it('should handle the funky Windows edge case with CLI parsing', async () => {
     __testRegisterFramework({
       id: 'react-cra',

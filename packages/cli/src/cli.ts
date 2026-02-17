@@ -55,6 +55,7 @@ export function cli({
   frameworkDefinitionInitializers,
   showDeploymentOptions = false,
   legacyAutoCreate = false,
+  defaultRouterOnly = false,
 }: {
   name: string
   appName: string
@@ -65,6 +66,7 @@ export function cli({
   frameworkDefinitionInitializers?: Array<() => FrameworkDefinition>
   showDeploymentOptions?: boolean
   legacyAutoCreate?: boolean
+  defaultRouterOnly?: boolean
 }) {
   const environment = createUIEnvironment(appName, false)
 
@@ -307,6 +309,18 @@ export function cli({
         ...options,
       } as CliOptions
 
+      if (defaultRouterOnly && cliOptions.routerOnly === undefined) {
+        cliOptions.routerOnly = true
+      }
+
+      if (
+        cliOptions.routerOnly !== true &&
+        cliOptions.template &&
+        cliOptions.template.toLowerCase() !== 'file-router'
+      ) {
+        cliOptions.routerOnly = true
+      }
+
       cliOptions.framework = getFrameworkByName(
         options.framework || defaultFramework || 'React',
       )!.id
@@ -358,6 +372,9 @@ export function cli({
       if (!finalOptions) {
         throw new Error('No options were provided')
       }
+
+      ;(finalOptions as Options & { routerOnly?: boolean }).routerOnly =
+        !!cliOptions.routerOnly
 
       // Determine target directory:
       // 1. Use --target-dir if provided
@@ -435,7 +452,7 @@ export function cli({
       )
       .option(
         '--router-only',
-        'Deprecated: compatibility flag from create-tsrouter-app',
+        'Use router-only compatibility mode (file-based routing without TanStack Start)',
       )
       .option(
         '--template <type>',

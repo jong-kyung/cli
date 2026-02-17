@@ -60,6 +60,9 @@ export async function promptForCreateOptions(
 
   // Mode is always file-router (TanStack Start)
   options.mode = 'file-router'
+  const template = cliOptions.template?.toLowerCase().trim()
+  const routerOnly =
+    !!cliOptions.routerOnly || (template ? template !== 'file-router' : false)
 
   // TypeScript is always enabled with file-router
   options.typescript = true
@@ -81,7 +84,9 @@ export async function promptForCreateOptions(
 
   // Deployment selection
   const deployment = showDeploymentOptions
-    ? await selectDeployment(options.framework, cliOptions.deployment)
+    ? routerOnly
+      ? undefined
+      : await selectDeployment(options.framework, cliOptions.deployment)
     : undefined
 
   // Add-ons selection
@@ -94,18 +99,20 @@ export async function promptForCreateOptions(
     addOns.add(deployment)
   }
 
-  for (const addOn of forcedAddOns) {
-    addOns.add(addOn)
+  if (!routerOnly) {
+    for (const addOn of forcedAddOns) {
+      addOns.add(addOn)
+    }
   }
 
-  if (Array.isArray(cliOptions.addOns)) {
+  if (!routerOnly && Array.isArray(cliOptions.addOns)) {
     for (const addOn of cliOptions.addOns) {
       if (addOn.toLowerCase() === 'start') {
         continue
       }
       addOns.add(addOn)
     }
-  } else {
+  } else if (!routerOnly) {
     for (const addOn of await selectAddOns(
       options.framework,
       options.mode,

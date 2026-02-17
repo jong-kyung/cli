@@ -33,8 +33,24 @@ export function validateLegacyCreateFlags(cliOptions: CliOptions): {
 
   if (cliOptions.routerOnly) {
     warnings.push(
-      'The --router-only flag is deprecated and ignored. `tanstack create` already creates router-based apps.',
+      'The --router-only flag enables router-only compatibility mode. Start-dependent add-ons, deployment adapters, and starters are disabled; only the base template and optional toolchain are supported.',
     )
+  }
+
+  if (cliOptions.routerOnly && cliOptions.addOns) {
+    warnings.push(
+      'Ignoring --add-ons in router-only compatibility mode.',
+    )
+  }
+
+  if (cliOptions.routerOnly && cliOptions.deployment) {
+    warnings.push(
+      'Ignoring --deployment in router-only compatibility mode.',
+    )
+  }
+
+  if (cliOptions.routerOnly && cliOptions.starter) {
+    warnings.push('Ignoring --starter in router-only compatibility mode.')
   }
 
   if (cliOptions.tailwind === true) {
@@ -70,9 +86,7 @@ export function validateLegacyCreateFlags(cliOptions: CliOptions): {
     }
   }
 
-  warnings.push(
-    'The --template flag is deprecated. TypeScript/TSX is the default and only supported template.',
-  )
+  warnings.push('The --template flag is deprecated and mapped for compatibility.')
 
   return { warnings }
 }
@@ -110,8 +124,14 @@ export async function normalizeOptions(
 
   // Mode is always file-router (TanStack Start)
   let mode = 'file-router'
+  let routerOnly = !!cliOptions.routerOnly
 
-  const starter = cliOptions.starter
+  const template = cliOptions.template?.toLowerCase().trim()
+  if (template && template !== 'file-router') {
+    routerOnly = true
+  }
+
+  const starter = !routerOnly && cliOptions.starter
     ? await loadStarter(cliOptions.starter)
     : undefined
 
@@ -143,10 +163,10 @@ export async function normalizeOptions(
       cliOptions.deployment
     ) {
       const selectedAddOns = new Set<string>([
-        ...(starter?.dependsOn || []),
-        ...(forcedAddOns || []),
+        ...(routerOnly ? [] : (starter?.dependsOn || [])),
+        ...(routerOnly ? [] : (forcedAddOns || [])),
       ])
-      if (cliOptions.addOns && Array.isArray(cliOptions.addOns)) {
+      if (!routerOnly && cliOptions.addOns && Array.isArray(cliOptions.addOns)) {
         for (const a of cliOptions.addOns) {
           if (a.toLowerCase() === 'start') {
             continue
@@ -157,11 +177,11 @@ export async function normalizeOptions(
       if (cliOptions.toolchain) {
         selectedAddOns.add(cliOptions.toolchain)
       }
-      if (cliOptions.deployment) {
+      if (!routerOnly && cliOptions.deployment) {
         selectedAddOns.add(cliOptions.deployment)
       }
 
-      if (!cliOptions.deployment && opts?.forcedDeployment) {
+      if (!routerOnly && !cliOptions.deployment && opts?.forcedDeployment) {
         selectedAddOns.add(opts.forcedDeployment)
       }
 

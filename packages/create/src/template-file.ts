@@ -136,6 +136,7 @@ export function createTemplateFile(environment: Environment, options: Options) {
       jsx: 'tsx',
       fileRouter: options.mode === 'file-router',
       codeRouter: options.mode === 'code-router',
+      routerOnly: options.routerOnly === true,
       addOnEnabled,
       addOnOption: options.addOnOptions,
       addOns: options.chosenAddOns,
