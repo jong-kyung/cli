@@ -5,6 +5,8 @@ title: Creating Add-ons
 
 Add-ons add files, dependencies, and code hooks to generated projects.
 
+Use this guide when you want to build and maintain your own add-on outside the built-in catalog.
+
 ## Quick Start
 
 ```bash
@@ -40,6 +42,12 @@ tanstack create test --add-ons http://localhost:9080/info.json
         ├── integrations/my-feature/
         └── routes/demo/my-feature.tsx
 ```
+
+Generated source of truth files in your project root:
+
+- `.add-on/info.json` - add-on metadata and integration config
+- `.add-on/package.json` - dependency/script additions merged into generated apps
+- `.add-on/assets/**` - template files copied into target apps
 
 ## info.json
 
@@ -169,3 +177,40 @@ Host on GitHub, npm, or any URL:
 ```bash
 tanstack create my-app --add-ons https://example.com/my-addon/info.json
 ```
+
+### Local Iteration Loop
+
+Fastest way to iterate on a custom add-on:
+
+```bash
+# in your add-on project
+tanstack add-on compile
+npx serve .add-on -l 9080
+
+# in another terminal
+tanstack create test-app --add-ons http://localhost:9080/info.json
+```
+
+### Publishing Tips
+
+- Keep add-on source in git (not just compiled output).
+- Re-run `tanstack add-on compile` after each metadata/template change.
+- Publish `.add-on` contents to a stable URL.
+- Prefer immutable/versioned URLs for production use.
+
+## Maintenance Checklist
+
+When you update a custom add-on:
+
+1. Update templates or metadata in your source project.
+2. Re-run `tanstack add-on compile`.
+3. Test with a clean scaffold (`tanstack create ... --add-ons <url>`).
+4. Verify install/build/lint in the generated app.
+5. Publish updated `.add-on` assets.
+
+## Troubleshooting
+
+- **Add-on not found**: Verify URL points directly to `info.json`.
+- **Template not applied**: Ensure file is in `.add-on/assets` and ends with `.ejs` if templated.
+- **Option not taking effect**: Confirm option key matches `addOnOption['<id>']` usage in template.
+- **Integration code not injected**: Check `integrations[].type`, `jsName`, and `path` in `.add-on/info.json`.
