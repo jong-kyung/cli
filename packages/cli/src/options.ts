@@ -1,5 +1,4 @@
-import fs from 'node:fs'
-import { cancel, confirm, intro, isCancel } from '@clack/prompts'
+import { intro } from '@clack/prompts'
 
 import {
   finalizeAddOns,
@@ -57,23 +56,6 @@ export async function promptForCreateOptions(
     }
   } else {
     options.projectName = await getProjectName()
-  }
-
-  // Check if target directory is empty
-  if (
-    !cliOptions.force &&
-    fs.existsSync(options.projectName) &&
-    fs.readdirSync(options.projectName).length > 0
-  ) {
-    const shouldContinue = await confirm({
-      message: `Target directory ${options.projectName} is not empty. Do you want to continue?`,
-      initialValue: true,
-    })
-
-    if (isCancel(shouldContinue) || !shouldContinue) {
-      cancel('Operation cancelled.')
-      process.exit(0)
-    }
   }
 
   // Mode is always file-router (TanStack Start)

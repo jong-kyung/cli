@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import { resolve } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
-import { intro, log } from '@clack/prompts'
+import { cancel, confirm, intro, isCancel, log } from '@clack/prompts'
 import chalk from 'chalk'
 import semver from 'semver'
 
@@ -69,6 +69,37 @@ export function cli({
   const environment = createUIEnvironment(appName, false)
 
   const program = new Command()
+
+  async function confirmTargetDirectorySafety(
+    targetDir: string,
+    forced?: boolean,
+  ) {
+    if (forced) {
+      return
+    }
+
+    if (!fs.existsSync(targetDir)) {
+      return
+    }
+
+    if (!fs.statSync(targetDir).isDirectory()) {
+      throw new Error(`Target path exists and is not a directory: ${targetDir}`)
+    }
+
+    if (fs.readdirSync(targetDir).length === 0) {
+      return
+    }
+
+    const shouldContinue = await confirm({
+      message: `Target directory "${targetDir}" already exists and is not empty. Continue anyway?`,
+      initialValue: false,
+    })
+
+    if (isCancel(shouldContinue) || !shouldContinue) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+  }
 
   const availableFrameworks = getFrameworks().map((f) => f.name)
 
@@ -251,6 +282,7 @@ export function cli({
         console.log(chalk.gray('├─') + ' ' + chalk.yellow('⟳') + ' installing packages...')
       }
       const silentEnvironment = createUIEnvironment(appName, true)
+      await confirmTargetDirectorySafety(normalizedOpts.targetDir, options.force)
       await createApp(silentEnvironment, normalizedOpts)
       console.log(chalk.gray('└─') + ' ' + chalk.green('✓') + ` app created`)
 
@@ -342,6 +374,7 @@ export function cli({
         finalOptions.targetDir = resolve(process.cwd(), finalOptions.projectName)
       }
 
+      await confirmTargetDirectorySafety(finalOptions.targetDir, options.force)
       await createApp(environment, finalOptions)
     } catch (error) {
       log.error(
