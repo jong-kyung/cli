@@ -195,7 +195,7 @@ export async function normalizeOptions(
       cliOptions.packageManager ||
       getPackageManager() ||
       DEFAULT_PACKAGE_MANAGER,
-    git: !!cliOptions.git,
+    git: cliOptions.git ?? true,
     install: cliOptions.install,
     chosenAddOns,
     addOnOptions: {

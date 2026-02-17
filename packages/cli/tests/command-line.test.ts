@@ -91,6 +91,23 @@ describe('normalizeOptions', () => {
     expect(solidOptions?.tailwind).toBe(true)
   })
 
+  it('defaults git initialization to enabled', async () => {
+    const options = await normalizeOptions({
+      projectName: 'test',
+    })
+
+    expect(options?.git).toBe(true)
+  })
+
+  it('respects explicit --no-git option', async () => {
+    const options = await normalizeOptions({
+      projectName: 'test',
+      git: false,
+    })
+
+    expect(options?.git).toBe(false)
+  })
+
   it('should handle a starter url', async () => {
     __testRegisterFramework({
       id: 'solid',

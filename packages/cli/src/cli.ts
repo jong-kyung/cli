@@ -504,6 +504,7 @@ export function cli({
         '--addon-details <addon-id>',
         'show detailed information about a specific add-on',
       )
+      .option('--git', 'create a git repository')
       .option('--no-git', 'do not create a git repository')
       .option(
         '--target-dir <path>',
