@@ -6,7 +6,7 @@ To run this application:
 
 ```bash
 npm install
-npm run start  
+npm run dev
 ```
 
 # Building For Production
@@ -33,7 +33,7 @@ This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
 # TanStack Chat Application
 
-Am example chat application built with TanStack Start, TanStack Store, and Claude AI.
+An example chat application built with TanStack Start, TanStack Store, and Claude AI.
 
 ## .env Updates
 

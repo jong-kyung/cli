@@ -22,7 +22,7 @@
       "streamdown": "^1.6.5"
     }
   },
-  "dependsOn": ["tanchat", "start", "store"],
+  "dependsOn": ["tanchat", "store"],
   "typescript": true,
   "tailwind": true,
   "banner": ".starter/banner.png"

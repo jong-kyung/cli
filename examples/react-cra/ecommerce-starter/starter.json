@@ -14,7 +14,7 @@
   "warning": "",
   "type": "starter",
   "packageAdditions": {},
-  "dependsOn": ["tanchat", "start", "store"],
+  "dependsOn": ["tanchat", "store"],
   "typescript": true,
   "tailwind": true,
   "files": {

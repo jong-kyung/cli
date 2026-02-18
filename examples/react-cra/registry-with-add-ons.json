@@ -2,7 +2,7 @@
   "starters": [
     {
       "name": "e-Commerce",
-      "description": "A starter project for React with CRA",
+      "description": "An e-commerce starter for TanStack React",
       "url": "./ecommerce-starter/starter.json",
       "banner": "./ecommerce-starter/.starter/banner.png",
       "mode": "file-router",
@@ -10,7 +10,7 @@
     },
     {
       "name": "Blog",
-      "description": "A blog starter for Tanstack React Start",
+      "description": "A blog starter for TanStack React",
       "url": "./blog-starter/starter.json",
       "banner": "./blog-starter/.starter/banner.png",
       "mode": "file-router",
@@ -18,7 +18,7 @@
     },
     {
       "name": "Resume",
-      "description": "A resume starter for Tanstack React Start",
+      "description": "A resume starter for TanStack React",
       "url": "./resume-starter/starter.json",
       "banner": "./resume-starter/.starter/banner.png",
       "mode": "file-router",
@@ -28,16 +28,16 @@
   "add-ons": [
     {
       "name": "Legend State",
-      "description": "A Legend State add-on for Tanstack React Start",
+      "description": "A Legend State add-on for TanStack React",
       "url": "./legend-state-add-on/add-on.json",
-      "modes": ["code-router", "file-router"],
+      "modes": ["file-router"],
       "framework": "react-cra"
     },
     {
       "name": "MUI",
-      "description": "A MUI add-on for Tanstack React Start",
+      "description": "A MUI add-on for TanStack React",
       "url": "./mui-add-on/add-on.json",
-      "modes": ["code-router", "file-router"],
+      "modes": ["file-router"],
       "framework": "react-cra"
     }
   ]

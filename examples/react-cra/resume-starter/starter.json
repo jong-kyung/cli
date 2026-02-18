@@ -26,7 +26,7 @@
       "@content-collections/vite": "^0.2.6"
     }
   },
-  "dependsOn": ["start", "shadcn"],
+  "dependsOn": ["shadcn"],
   "typescript": true,
   "tailwind": true,
   "files": {
