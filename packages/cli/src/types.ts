@@ -23,4 +23,5 @@ export interface CliOptions {
   routerOnly?: boolean
   template?: string
   tailwind?: boolean
+  examples?: boolean
 }

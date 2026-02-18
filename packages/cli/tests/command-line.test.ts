@@ -300,6 +300,23 @@ describe('normalizeOptions', () => {
     expect(options?.mode).toBe('file-router')
   })
 
+  it('includes examples by default in non-router-only mode', async () => {
+    const options = await normalizeOptions({
+      projectName: 'test',
+    })
+
+    expect((options as any)?.includeExamples).toBe(true)
+  })
+
+  it('supports disabling examples from the CLI', async () => {
+    const options = await normalizeOptions({
+      projectName: 'test',
+      examples: false,
+    })
+
+    expect((options as any)?.includeExamples).toBe(false)
+  })
+
   it('should ignore add-ons and deployment in router-only mode but keep toolchain', async () => {
     __testRegisterFramework({
       id: 'react-cra',

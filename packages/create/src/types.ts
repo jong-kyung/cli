@@ -207,6 +207,7 @@ export interface Options {
   addOnOptions: Record<string, Record<string, any>>
   starter?: Starter | undefined
   routerOnly?: boolean
+  includeExamples?: boolean
 }
 
 export type SerializedOptions = Omit<

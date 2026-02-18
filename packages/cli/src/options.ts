@@ -13,6 +13,7 @@ import {
   promptForAddOnOptions,
   selectAddOns,
   selectDeployment,
+  selectExamples,
   selectGit,
   selectPackageManager,
   selectToolchain,
@@ -92,6 +93,12 @@ export async function promptForCreateOptions(
   // Add-ons selection
   const addOns: Set<string> = new Set()
 
+  // Examples/demo pages are enabled by default
+  const includeExamples =
+    cliOptions.examples ?? (routerOnly ? false : await selectExamples())
+  ;(options as Required<Options> & { includeExamples?: boolean }).includeExamples =
+    includeExamples
+
   if (toolchain) {
     addOns.add(toolchain)
   }
@@ -123,21 +130,26 @@ export async function promptForCreateOptions(
       addOns.add(addOn)
     }
 
-    for (const addOn of await selectAddOns(
-      options.framework,
-      options.mode,
-      'example',
-      'Would you like an example?',
-      forcedAddOns,
-      false,
-    )) {
-      addOns.add(addOn)
+    if (includeExamples) {
+      for (const addOn of await selectAddOns(
+        options.framework,
+        options.mode,
+        'example',
+        'Would you like an example?',
+        forcedAddOns,
+        false,
+      )) {
+        addOns.add(addOn)
+      }
     }
   }
 
-  options.chosenAddOns = Array.from(
+  const chosenAddOns = Array.from(
     await finalizeAddOns(options.framework, options.mode, Array.from(addOns)),
   )
+  options.chosenAddOns = includeExamples
+    ? chosenAddOns
+    : chosenAddOns.filter((addOn) => addOn.type !== 'example')
 
   // Tailwind is always enabled
   options.tailwind = true

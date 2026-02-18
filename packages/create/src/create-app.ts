@@ -16,6 +16,51 @@ import { runSpecialSteps } from './special-steps/index.js'
 
 import type { Environment, FileBundleHandler, Options } from './types.js'
 
+function isDemoRoutePath(path?: string) {
+  if (!path) return false
+  const normalized = path.replace(/\\/g, '/')
+  return (
+    normalized.includes('/routes/demo/') ||
+    normalized.includes('/routes/demo.') ||
+    normalized.includes('/routes/example/') ||
+    normalized.includes('/routes/example.')
+  )
+}
+
+function stripExamplesFromOptions(options: Options): Options {
+  if (options.includeExamples !== false) {
+    return options
+  }
+
+  const chosenAddOns = options.chosenAddOns
+    .filter((addOn) => addOn.type !== 'example')
+    .map((addOn) => {
+      const filteredRoutes = (addOn.routes || []).filter(
+        (route) =>
+          !isDemoRoutePath(route.path) &&
+          !(route.url && route.url.startsWith('/demo')),
+      )
+
+      return {
+        ...addOn,
+        routes: filteredRoutes,
+        getFiles: async () => {
+          const files = await addOn.getFiles()
+          return files.filter((file) => !isDemoRoutePath(file))
+        },
+        getDeletedFiles: async () => {
+          const deletedFiles = await addOn.getDeletedFiles()
+          return deletedFiles.filter((file) => !isDemoRoutePath(file))
+        },
+      }
+    })
+
+  return {
+    ...options,
+    chosenAddOns,
+  }
+}
+
 async function writeFiles(environment: Environment, options: Options) {
   const templateFileFromContent = createTemplateFile(environment, options)
 
@@ -282,10 +327,12 @@ Please read the README.md file for information on testing, styling, adding route
 }
 
 export async function createApp(environment: Environment, options: Options) {
+  const effectiveOptions = stripExamplesFromOptions(options)
+
   environment.startRun()
-  await writeFiles(environment, options)
-  await runCommandsAndInstallDependencies(environment, options)
+  await writeFiles(environment, effectiveOptions)
+  await runCommandsAndInstallDependencies(environment, effectiveOptions)
   environment.finishRun()
 
-  report(environment, options)
+  report(environment, effectiveOptions)
 }

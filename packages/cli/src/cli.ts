@@ -466,6 +466,8 @@ export function cli({
         '--no-tailwind',
         'Deprecated: compatibility flag; Tailwind opt-out is ignored',
       )
+      .option('--examples', 'include demo/example pages')
+      .option('--no-examples', 'exclude demo/example pages')
 
     if (deployments.size > 0) {
       cmd.option<string>(

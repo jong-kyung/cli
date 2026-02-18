@@ -17,9 +17,10 @@ tanstack create [project-name] [options]
 | `--starter <url>` | Starter URL or local path |
 | `--package-manager <pm>` | `npm`, `pnpm`, `yarn`, `bun`, `deno` |
 | `--framework <name>` | `React`, `Solid` |
-| `--router-only` | Create Router-only SPA without TanStack Start (no SSR) |
+| `--router-only` | Create file-based Router-only app without TanStack Start (add-ons/deployment/starter disabled) |
 | `--toolchain <id>` | Toolchain add-on (use `--list-add-ons` to see options) |
 | `--deployment <id>` | Deployment add-on (use `--list-add-ons` to see options) |
+| `--examples` / `--no-examples` | Include or exclude demo/example pages |
 | `--tailwind` / `--no-tailwind` | Deprecated compatibility flags; accepted but ignored (Tailwind is always enabled) |
 | `--no-git` | Skip git init |
 | `--no-install` | Skip dependency install |
@@ -36,7 +37,7 @@ tanstack create [project-name] [options]
 # Examples
 tanstack create my-app -y
 tanstack create my-app --add-ons clerk,drizzle,tanstack-query
-tanstack create my-app --router-only --add-ons tanstack-query
+tanstack create my-app --router-only --toolchain eslint --no-examples
 tanstack create my-app --starter https://example.com/starter.json
 ```
 

@@ -191,7 +191,11 @@ export async function normalizeOptions(
     return []
   }
 
-  const chosenAddOns = await selectAddOns()
+  const includeExamples = cliOptions.examples ?? !routerOnly
+  const chosenAddOnsRaw = await selectAddOns()
+  const chosenAddOns = includeExamples
+    ? chosenAddOnsRaw
+    : chosenAddOnsRaw.filter((addOn) => addOn.type !== 'example')
 
   // Handle add-on configuration option
   let addOnOptionsFromCLI = {}
@@ -204,7 +208,7 @@ export async function normalizeOptions(
     }
   }
 
-  return {
+  const normalized = {
     projectName: projectName,
     targetDir,
     framework,
@@ -224,6 +228,11 @@ export async function normalizeOptions(
     },
     starter: starter,
   }
+
+  ;(normalized as Options & { includeExamples?: boolean }).includeExamples =
+    includeExamples
+
+  return normalized
 }
 
 export function validateDevWatchOptions(cliOptions: CliOptions): {

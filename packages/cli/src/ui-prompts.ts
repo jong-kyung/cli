@@ -151,6 +151,18 @@ export async function selectGit(): Promise<boolean> {
   return git
 }
 
+export async function selectExamples(): Promise<boolean> {
+  const includeExamples = await confirm({
+    message: 'Would you like to include demo/example pages?',
+    initialValue: true,
+  })
+  if (isCancel(includeExamples)) {
+    cancel('Operation cancelled.')
+    process.exit(0)
+  }
+  return includeExamples
+}
+
 export async function selectToolchain(
   framework: Framework,
   toolchain?: string | false,
