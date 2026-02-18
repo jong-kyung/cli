@@ -23,5 +23,21 @@
       "path": "src/integrations/convex/provider.tsx",
       "jsName": "ConvexProvider"
     }
+  ],
+  "envVars": [
+    {
+      "name": "CONVEX_DEPLOYMENT",
+      "description": "Convex deployment name",
+      "required": false,
+      "secret": false,
+      "file": ".env.local"
+    },
+    {
+      "name": "VITE_CONVEX_URL",
+      "description": "Convex deployment URL",
+      "required": true,
+      "secret": false,
+      "file": ".env.local"
+    }
   ]
 }

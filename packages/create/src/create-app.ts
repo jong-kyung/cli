@@ -280,6 +280,32 @@ async function runCommandsAndInstallDependencies(
   await installShadcnComponents(environment, options.targetDir, options)
 }
 
+async function seedEnvValues(environment: Environment, options: Options) {
+  const envVarValues = options.envVarValues || {}
+  const entries = Object.entries(envVarValues)
+  if (entries.length === 0) return
+
+  const envLocalPath = resolve(options.targetDir, '.env.local')
+  if (!environment.exists(envLocalPath)) {
+    return
+  }
+
+  let envContents = await environment.readFile(envLocalPath)
+  for (const [key, value] of entries) {
+    const escapedValue = value.replace(/\n/g, '\\n')
+    const nextLine = `${key}=${escapedValue}`
+    const pattern = new RegExp(`^${key}=.*$`, 'm')
+
+    if (pattern.test(envContents)) {
+      envContents = envContents.replace(pattern, nextLine)
+    } else {
+      envContents += `${envContents.endsWith('\n') ? '' : '\n'}${nextLine}\n`
+    }
+  }
+
+  await environment.writeFile(envLocalPath, envContents)
+}
+
 function report(environment: Environment, options: Options) {
   const warnings: Array<string> = []
   for (const addOn of options.chosenAddOns) {
@@ -331,6 +357,7 @@ export async function createApp(environment: Environment, options: Options) {
 
   environment.startRun()
   await writeFiles(environment, effectiveOptions)
+  await seedEnvValues(environment, effectiveOptions)
   await runCommandsAndInstallDependencies(environment, effectiveOptions)
   environment.finishRun()
 

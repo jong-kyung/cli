@@ -92,6 +92,18 @@ export const AddOnBaseSchema = z.object({
   createSpecialSteps: z.array(z.string()).optional(),
   postInitSpecialSteps: z.array(z.string()).optional(),
   options: AddOnOptionsSchema.optional(),
+  envVars: z
+    .array(
+      z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        required: z.boolean().optional(),
+        default: z.string().optional(),
+        secret: z.boolean().optional(),
+        file: z.enum(['.env', '.env.local']).optional(),
+      }),
+    )
+    .optional(),
   default: z.boolean().optional(),
 })
 
@@ -208,6 +220,7 @@ export interface Options {
   starter?: Starter | undefined
   routerOnly?: boolean
   includeExamples?: boolean
+  envVarValues?: Record<string, string>
 }
 
 export type SerializedOptions = Omit<

@@ -231,6 +231,8 @@ export async function normalizeOptions(
 
   ;(normalized as Options & { includeExamples?: boolean }).includeExamples =
     includeExamples
+  ;(normalized as Options & { envVarValues?: Record<string, string> }).envVarValues =
+    {}
 
   return normalized
 }

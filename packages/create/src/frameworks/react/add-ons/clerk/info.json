@@ -28,5 +28,14 @@
       "jsName": "ClerkProvider",
       "path": "src/integrations/clerk/provider.tsx"
     }
+  ],
+  "envVars": [
+    {
+      "name": "VITE_CLERK_PUBLISHABLE_KEY",
+      "description": "Clerk publishable key",
+      "required": true,
+      "secret": false,
+      "file": ".env.local"
+    }
   ]
 }

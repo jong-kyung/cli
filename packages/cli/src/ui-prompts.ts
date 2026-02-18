@@ -4,6 +4,7 @@ import {
   isCancel,
   multiselect,
   note,
+  password,
   select,
   text,
 } from '@clack/prompts'
@@ -249,6 +250,69 @@ export async function promptForAddOnOptions(
   }
 
   return addOnOptions
+}
+
+export async function promptForEnvVars(
+  addOns: Array<AddOn>,
+): Promise<Record<string, string>> {
+  const envVars = new Map<
+    string,
+    {
+      name: string
+      description?: string
+      required?: boolean
+      default?: string
+      secret?: boolean
+    }
+  >()
+
+  for (const addOn of addOns as Array<any>) {
+    for (const envVar of addOn.envVars || []) {
+      if (!envVars.has(envVar.name)) {
+        envVars.set(envVar.name, envVar)
+      }
+    }
+  }
+
+  const result: Record<string, string> = {}
+
+  for (const envVar of envVars.values()) {
+    const label = envVar.description
+      ? `${envVar.name} (${envVar.description})`
+      : envVar.name
+
+    const value = envVar.secret
+      ? await password({
+          message: `Enter ${label}`,
+          validate: envVar.required
+            ? (v) =>
+                v && v.trim().length > 0
+                  ? undefined
+                  : `${envVar.name} is required`
+            : undefined,
+        })
+      : await text({
+          message: `Enter ${label}`,
+          defaultValue: envVar.default,
+          validate: envVar.required
+            ? (v) =>
+                v && v.trim().length > 0
+                  ? undefined
+                  : `${envVar.name} is required`
+            : undefined,
+        })
+
+    if (isCancel(value)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+
+    if (value && value.trim()) {
+      result[envVar.name] = value.trim()
+    }
+  }
+
+  return result
 }
 
 export async function selectDeployment(

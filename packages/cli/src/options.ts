@@ -11,6 +11,7 @@ import {
 import {
   getProjectName,
   promptForAddOnOptions,
+  promptForEnvVars,
   selectAddOns,
   selectDeployment,
   selectExamples,
@@ -168,6 +169,13 @@ export async function promptForCreateOptions(
     // Merge user options with defaults
     options.addOnOptions = { ...defaultOptions, ...userOptions }
   }
+
+  // Prompt for env vars exposed by selected add-ons in interactive mode
+  const envVarValues = Array.isArray(cliOptions.addOns)
+    ? {}
+    : await promptForEnvVars(options.chosenAddOns)
+  ;(options as Required<Options> & { envVarValues?: Record<string, string> }).envVarValues =
+    envVarValues
 
   options.git = cliOptions.git ?? (await selectGit())
   if (cliOptions.install === false) {
