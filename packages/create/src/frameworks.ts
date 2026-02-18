@@ -111,6 +111,7 @@ export function scanAddOnDirectories(addOnsDirectories: Array<string>) {
       addOns.push({
         ...info,
         id: dir,
+        version: info.version ?? '0.0.0',
         packageAdditions,
         packageTemplate,
         readme,

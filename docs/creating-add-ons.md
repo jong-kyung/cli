@@ -56,6 +56,7 @@ Required fields:
 ```json
 {
   "name": "My Feature",
+  "version": "0.0.1",
   "description": "What it does",
   "type": "add-on",
   "phase": "add-on",
@@ -66,6 +67,7 @@ Required fields:
 
 | Field | Values |
 |-------|--------|
+| `version` | Semantic version for your add-on metadata (e.g. `0.0.1`) |
 | `type` | `add-on`, `toolchain`, `deployment`, `example` |
 | `phase` | `setup`, `add-on`, `example` |
 | `category` | `tanstack`, `auth`, `database`, `orm`, `deploy`, `tooling`, `monitoring`, `api`, `i18n`, `cms`, `other` |

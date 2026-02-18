@@ -55,4 +55,33 @@ describe('readOrGenerateStarterInfo', () => {
     })
     expect(starterInfo.name).toEqual('test-starter')
   })
+
+  it('should backfill version when missing', async () => {
+    fs.mkdirSync(process.cwd(), { recursive: true })
+    fs.writeFileSync(
+      'starter-info.json',
+      JSON.stringify({
+        framework: 'test',
+        chosenAddOns: [],
+        starter: undefined,
+        name: 'test-starter',
+        mode: 'code-router',
+        typescript: true,
+        tailwind: true,
+        git: true,
+      }),
+    )
+    const starterInfo = await readOrGenerateStarterInfo({
+      framework: 'test',
+      version: 1,
+      chosenAddOns: [],
+      starter: undefined,
+      projectName: 'test',
+      mode: 'code-router',
+      typescript: true,
+      tailwind: true,
+      git: true,
+    })
+    expect(starterInfo.version).toEqual('0.0.1')
+  })
 })

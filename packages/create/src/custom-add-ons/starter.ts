@@ -27,7 +27,7 @@ const COMPILED_FILE = 'starter.json'
 export async function readOrGenerateStarterInfo(
   options: PersistedOptions,
 ): Promise<StarterInfo> {
-  return existsSync(INFO_FILE)
+  const info = existsSync(INFO_FILE)
     ? JSON.parse((await readFile(INFO_FILE)).toString())
     : {
         id: `${options.projectName}-starter`,
@@ -51,6 +51,12 @@ export async function readOrGenerateStarterInfo(
         dependsOn: options.chosenAddOns,
         typescript: true,
       }
+
+  if (!info.version) {
+    info.version = '0.0.1'
+  }
+
+  return info
 }
 
 async function loadCurrentStarterInfo(environment: Environment) {

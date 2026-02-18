@@ -122,6 +122,11 @@ export async function readOrGenerateAddOnInfo(
         },
         dependsOn: options.chosenAddOns,
       } as AddOnInfo)
+
+  if (!info.version) {
+    info.version = '0.0.1'
+  }
+
   return info
 }
 
