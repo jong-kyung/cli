@@ -11,9 +11,9 @@
   "routes": [
     {
       "url": "/demo/strapi",
-      "name": "Strapi",
-      "path": "src/routes/demo.strapi.tsx",
-      "jsName": "StrapiDemo"
+      "name": "Strapi Articles",
+      "path": "src/routes/demo/strapi.tsx",
+      "jsName": "StrapiArticles"
     }
   ]
 }
