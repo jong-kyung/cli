@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, watch } from 'node:fs/promises'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
@@ -35,6 +35,22 @@ const INFO_FILE = '.add-on/info.json'
 const COMPILED_FILE = 'add-on.json'
 
 const ASSETS_DIR = 'assets'
+
+const ADD_ON_DEV_IGNORE_PREFIXES = [
+  '.add-on/',
+  '.git/',
+  'node_modules/',
+  '.turbo/',
+  'dist/',
+]
+
+function shouldIgnoreDevPath(path: string) {
+  const normalized = path.replace(/\\/g, '/')
+  if (normalized === COMPILED_FILE) return true
+  return ADD_ON_DEV_IGNORE_PREFIXES.some((prefix) =>
+    normalized.startsWith(prefix),
+  )
+}
 
 export function camelCase(str: string) {
   return str
@@ -216,6 +232,56 @@ export async function initAddOn(environment: Environment) {
   await validateAddOnSetup(environment)
   await updateAddOnInfo(environment)
   await compileAddOn(environment)
+}
+
+export async function devAddOn(environment: Environment) {
+  await initAddOn(environment)
+
+  environment.info(
+    'Add-on dev mode is running.',
+    'Watching project files and recompiling add-on output on changes. Press Ctrl+C to stop.',
+  )
+
+  const abortController = new AbortController()
+  let debounceTimeout: ReturnType<typeof setTimeout> | undefined
+
+  const rerun = async () => {
+    try {
+      await updateAddOnInfo(environment)
+      await compileAddOn(environment)
+      environment.info('Add-on updated.', 'Compiled add-on.json and refreshed .add-on')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      environment.error('Failed to rebuild add-on.', message)
+    }
+  }
+
+  process.once('SIGINT', () => {
+    abortController.abort()
+  })
+
+  try {
+    for await (const event of watch(process.cwd(), {
+      recursive: true,
+      signal: abortController.signal,
+    })) {
+      const file = event.filename?.toString()
+      if (!file || shouldIgnoreDevPath(file)) continue
+
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout)
+      }
+
+      debounceTimeout = setTimeout(() => {
+        void rerun()
+      }, 200)
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    if (!message.includes('aborted')) {
+      throw error
+    }
+  }
 }
 
 export async function loadRemoteAddOn(url: string): Promise<AddOn> {

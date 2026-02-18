@@ -26,6 +26,9 @@ tanstack add-on init
 # 5. Compile
 tanstack add-on compile
 
+# Optional: continuously rebuild while authoring
+tanstack add-on dev
+
 # 6. Test locally
 npx serve .add-on -l 9080
 tanstack create test --add-ons http://localhost:9080/info.json
@@ -192,6 +195,8 @@ npx serve .add-on -l 9080
 # in another terminal
 tanstack create test-app --add-ons http://localhost:9080/info.json
 ```
+
+If you are actively editing templates, run `tanstack add-on dev` to auto-refresh `.add-on` and `add-on.json` on file changes.
 
 ### Publishing Tips
 

@@ -9,6 +9,7 @@ import {
   SUPPORTED_PACKAGE_MANAGERS,
   addToApp,
   compileAddOn,
+  devAddOn,
   compileStarter,
   createApp,
   createSerializedOptions,
@@ -696,6 +697,14 @@ Remove your node_modules directory and package lock file and re-install.`,
     .description('Update add-on from the current project')
     .action(async () => {
       await compileAddOn(environment)
+    })
+  addOnCommand
+    .command('dev')
+    .description(
+      'Watch project files and continuously refresh .add-on and add-on.json',
+    )
+    .action(async () => {
+      await devAddOn(environment)
     })
 
   // === STARTER SUBCOMMAND ===

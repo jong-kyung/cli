@@ -61,7 +61,7 @@ export {
 export { formatCommand, handleSpecialURL } from './utils.js'
 
 export { initStarter, compileStarter } from './custom-add-ons/starter.js'
-export { initAddOn, compileAddOn } from './custom-add-ons/add-on.js'
+export { initAddOn, compileAddOn, devAddOn } from './custom-add-ons/add-on.js'
 export {
   createAppOptionsFromPersisted,
   createSerializedOptionsFromPersisted,
