@@ -61,23 +61,6 @@ rm -rf test-app && node packages/cli/dist/index.js dev \
 
 The legacy `create --dev-watch <path>` flow still works for direct watch path control.
 
-## Developing Create UI
-
-The UI requires running three things:
-
-```bash
-# Terminal 1: Watch mode for packages
-pnpm dev
-
-# Terminal 2: API server (from empty directory)
-CTA_DISABLE_UI=true node ../cli/packages/cli/dist/index.js create --ui
-
-# Terminal 3: React dev server
-cd packages/create-ui && pnpm dev:ui
-```
-
-Navigate to `http://localhost:3000` to see the UI connected to the API at `http://localhost:8080`.
-
 ## Submitting Changes
 
 1. Run tests: `pnpm test`
@@ -90,7 +73,6 @@ Navigate to `http://localhost:3000` to see the UI connected to the API at `http:
 packages/
 ├── cli/           # @tanstack/cli - CLI commands
 ├── create/        # @tanstack/create - Engine + frameworks
-└── create-ui/     # @tanstack/create-ui - Visual builder
 ```
 
 ## Useful Scripts

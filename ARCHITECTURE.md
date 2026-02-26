@@ -15,7 +15,6 @@
 |---------|---------|
 | `@tanstack/cli` | Main CLI with commands: `create`, `add`, `add-on`, `starter`, `mcp` |
 | `@tanstack/create` | Core engine, frameworks, and add-ons |
-| `@tanstack/create-ui` | Visual project builder web interface |
 
 ## Framework Structure
 

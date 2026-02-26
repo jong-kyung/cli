@@ -42,8 +42,7 @@
       "create-tanstack-app": "workspace:*",
       "create-tsrouter-app": "workspace:*",
       "@tanstack/cli": "workspace:*",
-      "@tanstack/create": "workspace:*",
-      "@tanstack/create-ui": "workspace:*"
+      "@tanstack/create": "workspace:*"
     }
   }
 }

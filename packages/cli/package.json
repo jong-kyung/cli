@@ -44,7 +44,6 @@
     "@clack/prompts": "^0.10.0",
     "@modelcontextprotocol/sdk": "^1.6.0",
     "@tanstack/create": "workspace:*",
-    "@tanstack/create-ui": "workspace:*",
     "chalk": "^5.4.1",
     "chokidar": "^3.6.0",
     "commander": "^13.1.0",

@@ -31,7 +31,6 @@ tanstack create [project-name] [options]
 | `--list-add-ons` | List all available add-ons |
 | `--addon-details <id>` | Show details for specific add-on |
 | `--add-on-config <json>` | JSON string with add-on options |
-| `--ui` | Launch visual project builder |
 
 ```bash
 # Examples
@@ -55,14 +54,14 @@ tanstack add [add-on...] [options]
 | Option | Description |
 |--------|-------------|
 | `--forced` | Force add-on installation even if conflicts exist |
-| `--ui` | Launch visual add-on picker |
 
 ```bash
 # Examples
 tanstack add clerk drizzle
 tanstack add tanstack-query,tanstack-form
-tanstack add --ui
 ```
+
+Visual setup is available at `https://tanstack.com/builder`.
 
 ---
 

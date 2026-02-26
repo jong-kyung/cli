@@ -16,7 +16,6 @@ export interface CliOptions {
   templateId?: string
   targetDir?: string
   interactive?: boolean
-  ui?: boolean
   devWatch?: string
   runDev?: boolean
   install?: boolean

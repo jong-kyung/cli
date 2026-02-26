@@ -26,7 +26,6 @@ cli/
 │   │   └── src/frameworks/
 │   │       ├── react/     # React framework + add-ons
 │   │       └── solid/     # Solid framework + add-ons
-│   └── create-ui/     # @tanstack/create-ui - Web UI
 └── cli-aliases/       # Deprecated wrappers (create-tsrouter-app, etc.)
 ```
 
@@ -72,7 +71,6 @@ node ../cli/packages/cli/dist/index.js create my-app
 | `--no-install`       | Skip npm install                                        |
 | `-y`                 | Accept defaults                                         |
 | `-f, --force`        | Overwrite existing                                      |
-| `--ui`               | Launch visual builder                                   |
 
 ## EJS Template Variables
 

@@ -6,4 +6,3 @@ packages:
   - 'cli-aliases/*'
   - 'packages/*'
   - 'examples/custom-cli/*'
-  - 'examples/custom-cli/*/customized-ui'

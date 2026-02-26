@@ -11,7 +11,6 @@ import {
   compileAddOn,
   compileStarter,
   createApp,
-  createSerializedOptions,
   devAddOn,
   getAllAddOns,
   getFrameworkByName,
@@ -19,8 +18,6 @@ import {
   initAddOn,
   initStarter,
 } from '@tanstack/create'
-
-import { launchUI } from '@tanstack/create-ui'
 
 import { runMCPServer } from './mcp.js'
 
@@ -52,7 +49,6 @@ export function cli({
   forcedAddOns = [],
   forcedDeployment,
   defaultFramework,
-  webBase,
   frameworkDefinitionInitializers,
   showDeploymentOptions = false,
   legacyAutoCreate = false,
@@ -63,7 +59,6 @@ export function cli({
   forcedAddOns?: Array<string>
   forcedDeployment?: string
   defaultFramework?: string
-  webBase?: string
   frameworkDefinitionInitializers?: Array<() => FrameworkDefinition>
   showDeploymentOptions?: boolean
   legacyAutoCreate?: boolean
@@ -360,29 +355,6 @@ export function cli({
         )
       }
 
-      if (options.ui) {
-        const optionsFromCLI = await normalizeOptions(
-          cliOptions,
-          forcedAddOns,
-          { disableNameCheck: true, forcedDeployment },
-        )
-        const uiOptions = {
-          ...createSerializedOptions(optionsFromCLI!),
-          projectName: 'my-app',
-          targetDir: resolve(process.cwd(), 'my-app'),
-        }
-        launchUI({
-          mode: 'setup',
-          options: uiOptions,
-          forcedRouterMode: defaultMode,
-          forcedAddOns,
-          environmentFactory: () => createUIEnvironment(appName, false),
-          webBase,
-          showDeploymentOptions,
-        })
-        return
-      }
-
       if (finalOptions) {
         intro(`Creating a new ${appName} app in ${projectName}...`)
       } else {
@@ -559,7 +531,6 @@ export function cli({
         '--target-dir <path>',
         'the target directory for the application root',
       )
-      .option('--ui', 'Launch the UI for project creation')
       .option(
         '--add-on-config <config>',
         'JSON string with add-on configuration options',
@@ -704,8 +675,7 @@ Remove your node_modules directory and package lock file and re-install.`,
       'Name of the add-ons (or add-ons separated by spaces or commas)',
     )
     .option('--forced', 'Force the add-on to be added', false)
-    .option('--ui', 'Add with the UI')
-    .action(async (addOns: Array<string>, options: { forced: boolean; ui: boolean }) => {
+    .action(async (addOns: Array<string>, options: { forced: boolean }) => {
       const parsedAddOns: Array<string> = []
       for (const addOn of addOns) {
         if (addOn.includes(',') || addOn.includes(' ')) {
@@ -716,18 +686,7 @@ Remove your node_modules directory and package lock file and re-install.`,
           parsedAddOns.push(addOn.trim())
         }
       }
-      if (options.ui) {
-        launchUI({
-          mode: 'add',
-          addOns: parsedAddOns,
-          projectPath: resolve(process.cwd()),
-          forcedRouterMode: defaultMode,
-          forcedAddOns,
-          environmentFactory: () => createUIEnvironment(appName, false),
-          webBase,
-          showDeploymentOptions,
-        })
-      } else if (parsedAddOns.length < 1) {
+      if (parsedAddOns.length < 1) {
         const selectedAddOns = await promptForAddOns()
         if (selectedAddOns.length) {
           await addToApp(environment, selectedAddOns, resolve(process.cwd()), {
