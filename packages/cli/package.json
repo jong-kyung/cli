@@ -11,6 +11,11 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "test:e2e": "npm run test:e2e:blocking",
+    "test:e2e:blocking": "npm run build && playwright test --grep @blocking",
+    "test:e2e:matrix": "npm run build && playwright test --grep @matrix",
+    "test:e2e:debug": "npm run build && playwright test --debug",
+    "test:e2e:headed": "npm run build && playwright test --headed",
     "test:lint": "eslint ./src",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -51,6 +56,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tanstack/config": "^0.16.2",
     "@types/diff": "^5.2.0",
     "@types/express": "^5.0.1",

@@ -14,7 +14,7 @@ import RunCreateApp from './components/sidebar-items/run-create-app'
 import ProjectName from './components/sidebar-items/project-name'
 import ModeSelector from './components/sidebar-items/mode-selector'
 import TypescriptSwitch from './components/sidebar-items/typescript-switch'
-import StarterDialog from './components/sidebar-items/starter'
+import TemplateDialog from './components/sidebar-items/starter'
 import SidebarGroup from './components/sidebar-items/sidebar-group'
 import WebContainerProvider from './components/web-container-provider'
 import { WebContainerPreview } from './components/webcontainer-preview'
@@ -37,7 +37,9 @@ export {
   ProjectName,
   ModeSelector,
   TypescriptSwitch,
-  StarterDialog,
+  TemplateDialog,
+  // Legacy alias
+  TemplateDialog as StarterDialog,
   SidebarGroup,
   WebContainerProvider,
   WebContainerPreview,

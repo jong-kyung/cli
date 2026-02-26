@@ -5,17 +5,17 @@ import <%= integration.jsName %> from "<%= relativePath(integration.path) %>";
 const icons = new Set([
   "Menu",
   "X",
-  "House",
   "Home",
   "Globe",
-  "ChevronDown",
-  "ChevronRight",
-  "Layers",
 ])
 
 for(const addOn of addOns) {
   for(const route of (addOn?.routes||[])?.filter(r => r.url && r.name)) {
     icons.add( route.icon || "Globe");
+    if (route.children?.length) {
+      icons.add("ChevronDown")
+      icons.add("ChevronRight")
+    }
   }
 }
 %>
@@ -26,11 +26,13 @@ import {
 
 export default function Header() {
 <%
-const menusWithChildren = addOns.filter(a => a.routes?.some(r => r.children));
+const hasNestedRouteGroups = addOns.some(a => a.routes?.some(r => r.children?.length));
 const userHeaders = integrations.filter(i => i.type === 'header-user');
 %>
   const [isOpen, setIsOpen] = createSignal(false);
+  <% if (hasNestedRouteGroups) { %>
   const [groupedExpanded, setGroupedExpanded] = createSignal<Record<string, boolean>>({});
+  <% } %>
 
   return (
     <>
@@ -45,7 +47,7 @@ const userHeaders = integrations.filter(i => i.type === 'header-user');
         <h1 class="ml-4 text-xl font-semibold">
           <Link to="/">
             <img
-              src="/tanstack-word-logo-white.svg"
+              src="/logo192.png"
               alt="TanStack Logo"
               class="h-10"
             />

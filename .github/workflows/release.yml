@@ -30,8 +30,12 @@ jobs:
         uses: tanstack/config/.github/setup@main
       - name: Build
         run: pnpm build
-      - name: Test
-        run: pnpm test
+      - name: Test Unit
+        run: pnpm test:unit
+      - name: Install Playwright Chrome
+        run: pnpm --filter @tanstack/cli exec playwright install --with-deps chrome
+      - name: E2E Blocking
+        run: pnpm --filter @tanstack/cli test:e2e
       - name: Run Changesets (version or publish)
         uses: changesets/action@v1.5.3
         with:

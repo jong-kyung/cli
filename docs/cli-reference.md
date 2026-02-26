@@ -14,10 +14,10 @@ tanstack create [project-name] [options]
 | Option | Description |
 |--------|-------------|
 | `--add-ons <ids>` | Comma-separated add-on IDs |
-| `--starter <url>` | Starter URL or local path |
+| `--template <url-or-id>` | Template URL/path or built-in template ID |
 | `--package-manager <pm>` | `npm`, `pnpm`, `yarn`, `bun`, `deno` |
 | `--framework <name>` | `React`, `Solid` |
-| `--router-only` | Create file-based Router-only app without TanStack Start (add-ons/deployment/starter disabled) |
+| `--router-only` | Create file-based Router-only app without TanStack Start (add-ons/deployment/template disabled) |
 | `--toolchain <id>` | Toolchain add-on (use `--list-add-ons` to see options) |
 | `--deployment <id>` | Deployment add-on (use `--list-add-ons` to see options) |
 | `--examples` / `--no-examples` | Include or exclude demo/example pages |
@@ -38,7 +38,8 @@ tanstack create [project-name] [options]
 tanstack create my-app -y
 tanstack create my-app --add-ons clerk,drizzle,tanstack-query
 tanstack create my-app --router-only --toolchain eslint --no-examples
-tanstack create my-app --starter https://example.com/starter.json
+tanstack create my-app --template https://example.com/template.json
+tanstack create my-app --template ecommerce
 ```
 
 ---
@@ -91,27 +92,25 @@ See [Creating Add-ons](./creating-add-ons.md) for full guide.
 
 ---
 
-## tanstack starter
+## tanstack template
 
-Create reusable project presets.
+Create reusable project templates.
 
 ### init
 
 ```bash
-tanstack starter init
+tanstack template init
 ```
 
-Creates `starter-info.json` and `starter.json`.
+Creates `template-info.json` and `template.json`.
 
 ### compile
 
 ```bash
-tanstack starter compile
+tanstack template compile
 ```
 
-See [Starters](./starters.md) for full guide.
-
----
+See [Templates](./templates.md) for full guide.
 
 ## tanstack mcp
 
@@ -158,4 +157,4 @@ Projects include `.tanstack.json`:
 }
 ```
 
-Used by `add-on init` and `starter init` to detect changes.
+Used by `add-on init` and `template init` to detect changes.

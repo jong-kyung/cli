@@ -41,7 +41,7 @@ export async function promptForCreateOptions(
 ): Promise<Required<Options> | undefined> {
   const options = {} as Required<Options>
 
-  options.framework = getFrameworkById(cliOptions.framework || 'react-cra')!
+  options.framework = getFrameworkById(cliOptions.framework || 'react')!
 
   // Validate project name
   if (cliOptions.projectName) {
@@ -63,8 +63,14 @@ export async function promptForCreateOptions(
   // Mode is always file-router (TanStack Start)
   options.mode = 'file-router'
   const template = cliOptions.template?.toLowerCase().trim()
+  const isLegacyTemplate =
+    template &&
+    ['file-router', 'typescript', 'tsx', 'javascript', 'js', 'jsx'].includes(
+      template,
+    )
   const routerOnly =
-    !!cliOptions.routerOnly || (template ? template !== 'file-router' : false)
+    !!cliOptions.routerOnly ||
+    (isLegacyTemplate ? template !== 'file-router' : false)
 
   // TypeScript is always enabled with file-router
   options.typescript = true

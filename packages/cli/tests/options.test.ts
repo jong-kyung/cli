@@ -17,7 +17,7 @@ vi.mock('../src/ui-prompts')
 beforeEach(() => {
   __testClearFrameworks()
   __testRegisterFramework({
-    id: 'react-cra',
+    id: 'react',
     name: 'react',
     getAddOns: () => [
       {
@@ -53,7 +53,7 @@ beforeEach(() => {
 })
 
 const baseCliOptions: CliOptions = {
-  framework: 'react-cra',
+  framework: 'react',
   addOns: [],
   toolchain: undefined,
   projectName: undefined,

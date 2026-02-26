@@ -22,7 +22,7 @@ describe('writeConfigFile', () => {
     const targetDir = 'test-dir'
     const options = {
       framework: {
-        id: 'react-cra',
+        id: 'react',
         getAddOns: () => [],
       } as unknown as Framework,
       chosenAddOns: [
@@ -54,7 +54,7 @@ describe('readConfigFileFromEnvironment', () => {
     const targetDir = 'test-dir'
     const persistedOptions = {
       version: 1,
-      framework: 'react-cra',
+      framework: 'react',
       chosenAddOns: ['add-on-1'],
     }
     const { environment } = createMemoryEnvironment()
@@ -91,7 +91,7 @@ describe('readConfigFileFromEnvironment', () => {
     environment.finishRun()
 
     expect(config).toEqual({
-      framework: 'react-cra',
+      framework: 'react',
       projectName: 'foo',
       typescript: false,
       tailwind: false,

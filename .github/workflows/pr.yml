@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Test
+  test-unit:
+    name: Test (Unit)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,8 +26,8 @@ jobs:
         uses: tanstack/config/.github/setup@main
       - name: Build
         run: pnpm build
-      - name: Test
-        run: pnpm test
+      - name: Test Unit
+        run: pnpm test:unit
   provenance:
     name: Provenance
     runs-on: ubuntu-latest
@@ -40,3 +40,19 @@ jobs:
         uses: danielroe/provenance-action@v0.1.1
         with:
           fail-on-downgrade: true
+  test-e2e:
+    name: Test (E2E Blocking)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+        with:
+          fetch-depth: 0
+      - name: Setup Tools
+        uses: tanstack/config/.github/setup@main
+      - name: Build
+        run: pnpm build
+      - name: Install Playwright Chrome
+        run: pnpm --filter @tanstack/cli exec playwright install --with-deps chrome
+      - name: Test E2E Blocking
+        run: pnpm test:e2e

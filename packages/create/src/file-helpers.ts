@@ -209,6 +209,7 @@ export async function recursivelyGatherFilesFromEnvironment(
 
 export const IGNORE_FILES = [
   '.starter',
+  '.template',
   '.add-on',
   '.cta.json',
   '.git',

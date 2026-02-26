@@ -36,7 +36,7 @@ export function launchUI(
   app.use(express.urlencoded({ extended: true }))
 
   // Add headers required for WebContainer (SharedArrayBuffer support)
-  app.use((req, res, next) => {
+  app.use((_req, res, next) => {
     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
     next()
@@ -134,7 +134,7 @@ export function launchUI(
     }
   })
 
-  app.get('/api/load-starter', async (req, res) => {
+  async function loadTemplateHandler(req: any, res: any) {
     const { url } = req.query
     if (!url) {
       res.status(400).send('URL is required')
@@ -146,7 +146,7 @@ export function launchUI(
       const data = await response.json()
       const parsed = StarterCompiledSchema.safeParse(data)
       if (!parsed.success) {
-        res.status(400).json({ error: 'Invalid starter data' })
+        res.status(400).json({ error: 'Invalid template data' })
       } else {
         res.json({
           url: fixedUrl,
@@ -161,14 +161,18 @@ export function launchUI(
           typescript: parsed.data.typescript,
           tailwind: parsed.data.tailwind,
           banner: parsed.data.banner
-            ? fixedUrl.replace('starter.json', parsed.data.banner)
+            ? fixedUrl.replace(/(starter|template)\.json$/, parsed.data.banner)
             : undefined,
         })
       }
     } catch {
-      res.status(500).send('Failed to load starter')
+      res.status(500).send('Failed to load template')
     }
-  })
+  }
+
+  app.get('/api/load-template', loadTemplateHandler)
+  // Legacy endpoint alias
+  app.get('/api/load-starter', loadTemplateHandler)
 
   app.post('/api/shutdown', (_req, res) => {
     setTimeout(() => {

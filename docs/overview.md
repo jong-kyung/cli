@@ -12,7 +12,7 @@ npx @tanstack/cli create my-app
 ## Features
 
 - **Add-ons** - Auth, database, deployment, monitoring ([full list](./add-ons.md))
-- **Starters** - Reusable project presets ([docs](./starters.md))
+- **Templates** - Reusable project templates ([docs](./templates.md))
 - **MCP Server** - AI agent support ([docs](./mcp/overview.md))
 
 ## Next Steps

@@ -6,7 +6,7 @@ import RunCreateApp from './sidebar-items/run-create-app'
 import ProjectName from './sidebar-items/project-name'
 import ModeSelector from './sidebar-items/mode-selector'
 import TypescriptSwitch from './sidebar-items/typescript-switch'
-import StarterDialog from './sidebar-items/starter'
+import TemplateDialog from './sidebar-items/starter'
 import SidebarGroup from './sidebar-items/sidebar-group'
 
 export interface SidebarProps {
@@ -47,7 +47,7 @@ export function AppSidebar(props: SidebarProps) {
           </SidebarGroup>
           {mode === 'setup' && (
             <SidebarGroup>
-              <StarterDialog />
+              <TemplateDialog />
             </SidebarGroup>
           )}
         </>

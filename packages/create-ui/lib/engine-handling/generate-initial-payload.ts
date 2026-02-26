@@ -61,7 +61,7 @@ export async function generateInitialPayload() {
       const projectOptions = getProjectOptions()
       return {
         ...projectOptions,
-        framework: projectOptions.framework || 'react-cra',
+        framework: projectOptions.framework || 'react',
         projectName: projectOptions.projectName || basename(projectPath),
         mode: forcedRouterMode || projectOptions.mode,
         typescript: projectOptions.typescript || true,
@@ -110,10 +110,30 @@ export async function generateInitialPayload() {
     }
   }
 
+  const templates =
+    (
+      rawRegistry as
+        | {
+            templates?: Array<{
+              framework: string
+              name: string
+              description: string
+              url: string
+              banner?: string
+            }>
+          }
+        | undefined
+    )?.templates || rawRegistry?.starters || []
+
   const serializedRegistry = {
     ['add-ons']: [],
-    starters: (rawRegistry?.starters || []).filter(
-      (starter) => starter.framework === serializedOptions.framework,
+    templates: templates.filter(
+      (template: { framework: string }) =>
+        template.framework === serializedOptions.framework,
+    ),
+    starters: templates.filter(
+      (template: { framework: string }) =>
+        template.framework === serializedOptions.framework,
     ),
   }
 

@@ -159,20 +159,201 @@ describe('normalizeOptions', () => {
     expect(options?.framework?.id).toBe('solid')
   })
 
-  it('should default to react-cra if no framework is provided', async () => {
+  it('should resolve built-in starter id from registry', async () => {
     __testRegisterFramework({
-      id: 'react-cra',
+      id: 'react',
+      name: 'React',
+      getAddOns: () => [],
+      supportedModes: {
+        'file-router': {
+          displayName: 'File Router',
+          description: 'TanStack Router using files to define the routes',
+          forceTypescript: true,
+        },
+      },
+    })
+
+    const originalRegistry = process.env.CTA_REGISTRY
+    process.env.CTA_REGISTRY = 'https://registry.example/registry.json'
+
+    fetch
+      .mockResponseOnce(
+        JSON.stringify({
+          starters: [
+            {
+              name: 'Ecommerce',
+              description: 'Ecommerce base',
+              url: './ecommerce/template.json',
+              mode: 'file-router',
+              framework: 'react',
+            },
+          ],
+        }),
+      )
+      .mockResponseOnce(
+        JSON.stringify({
+          id: 'ecommerce',
+          typescript: true,
+          framework: 'react',
+          mode: 'file-router',
+          type: 'starter',
+          description: 'Ecommerce base',
+          name: 'Ecommerce',
+          dependsOn: [],
+          files: {},
+          deletedFiles: [],
+        }),
+      )
+
+    try {
+      const options = await normalizeOptions({
+        projectName: 'test',
+        starter: 'ecommerce',
+      })
+
+      expect(options?.framework?.id).toBe('react')
+      expect(options?.starter?.id).toBe(
+        'https://registry.example/ecommerce/template.json',
+      )
+    } finally {
+      process.env.CTA_REGISTRY = originalRegistry
+    }
+  })
+
+  it('should map --template-id to starter resolution', async () => {
+    __testRegisterFramework({
+      id: 'react',
+      name: 'React',
+      getAddOns: () => [],
+      supportedModes: {
+        'file-router': {
+          displayName: 'File Router',
+          description: 'TanStack Router using files to define the routes',
+          forceTypescript: true,
+        },
+      },
+    })
+
+    const originalRegistry = process.env.CTA_REGISTRY
+    process.env.CTA_REGISTRY = 'https://registry.example/registry.json'
+
+    fetch
+      .mockResponseOnce(
+        JSON.stringify({
+          templates: [
+            {
+              name: 'Resume',
+              description: 'Resume template',
+              url: './resume/template.json',
+              mode: 'file-router',
+              framework: 'react',
+            },
+          ],
+        }),
+      )
+      .mockResponseOnce(
+        JSON.stringify({
+          id: 'resume',
+          typescript: true,
+          framework: 'react',
+          mode: 'file-router',
+          type: 'starter',
+          description: 'Resume template',
+          name: 'Resume',
+          dependsOn: [],
+          files: {},
+          deletedFiles: [],
+        }),
+      )
+
+    try {
+      const options = await normalizeOptions({
+        projectName: 'test',
+        templateId: 'resume',
+      })
+
+      expect(options?.starter?.id).toBe(
+        'https://registry.example/resume/template.json',
+      )
+    } finally {
+      process.env.CTA_REGISTRY = originalRegistry
+    }
+  })
+
+  it('should resolve --template as a template id from registry', async () => {
+    __testRegisterFramework({
+      id: 'react',
+      name: 'React',
+      getAddOns: () => [],
+      supportedModes: {
+        'file-router': {
+          displayName: 'File Router',
+          description: 'TanStack Router using files to define the routes',
+          forceTypescript: true,
+        },
+      },
+    })
+
+    const originalRegistry = process.env.CTA_REGISTRY
+    process.env.CTA_REGISTRY = 'https://registry.example/registry.json'
+
+    fetch
+      .mockResponseOnce(
+        JSON.stringify({
+          templates: [
+            {
+              name: 'Ecommerce',
+              description: 'Ecommerce template',
+              url: './ecommerce/template.json',
+              mode: 'file-router',
+              framework: 'react',
+            },
+          ],
+        }),
+      )
+      .mockResponseOnce(
+        JSON.stringify({
+          id: 'ecommerce',
+          typescript: true,
+          framework: 'react',
+          mode: 'file-router',
+          type: 'starter',
+          description: 'Ecommerce template',
+          name: 'Ecommerce',
+          dependsOn: [],
+          files: {},
+          deletedFiles: [],
+        }),
+      )
+
+    try {
+      const options = await normalizeOptions({
+        projectName: 'test',
+        template: 'ecommerce',
+      })
+
+      expect(options?.starter?.id).toBe(
+        'https://registry.example/ecommerce/template.json',
+      )
+    } finally {
+      process.env.CTA_REGISTRY = originalRegistry
+    }
+  })
+
+  it('should default to react if no framework is provided', async () => {
+    __testRegisterFramework({
+      id: 'react',
       name: 'react',
     })
     const options = await normalizeOptions({
       projectName: 'test',
     })
-    expect(options?.framework?.id).toBe('react-cra')
+    expect(options?.framework?.id).toBe('react')
   })
 
   it('should handle forced addons', async () => {
     __testRegisterFramework({
-      id: 'react-cra',
+      id: 'react',
       name: 'react',
       getAddOns: () => [
         {
@@ -191,7 +372,7 @@ describe('normalizeOptions', () => {
     const options = await normalizeOptions(
       {
         projectName: 'test',
-        framework: 'react-cra',
+        framework: 'react',
       },
       ['foo'],
     )
@@ -200,7 +381,7 @@ describe('normalizeOptions', () => {
 
   it('should handle additional addons from the CLI', async () => {
     __testRegisterFramework({
-      id: 'react-cra',
+      id: 'react',
       name: 'react',
       getAddOns: () => [
         {
@@ -225,7 +406,7 @@ describe('normalizeOptions', () => {
       {
         projectName: 'test',
         addOns: ['baz'],
-        framework: 'react-cra',
+        framework: 'react',
       },
       ['foo'],
     )
@@ -237,7 +418,7 @@ describe('normalizeOptions', () => {
 
   it('should ignore legacy start add-on id from exported commands', async () => {
     __testRegisterFramework({
-      id: 'react-cra',
+      id: 'react',
       name: 'react',
       getAddOns: () => [
         {
@@ -257,7 +438,7 @@ describe('normalizeOptions', () => {
     const options = await normalizeOptions({
       projectName: 'test',
       addOns: ['start', 'tanstack-query'],
-      framework: 'react-cra',
+      framework: 'react',
     })
 
     expect(options?.chosenAddOns.map((a) => a.id)).toContain('tanstack-query')
@@ -266,7 +447,7 @@ describe('normalizeOptions', () => {
 
   it('should handle toolchain as an addon', async () => {
     __testRegisterFramework({
-      id: 'react-cra',
+      id: 'react',
       name: 'react',
       getAddOns: () => [
         {
@@ -319,7 +500,7 @@ describe('normalizeOptions', () => {
 
   it('should ignore add-ons and deployment in router-only mode but keep toolchain', async () => {
     __testRegisterFramework({
-      id: 'react-cra',
+      id: 'react',
       name: 'react',
       getAddOns: () => [
         {
@@ -345,7 +526,7 @@ describe('normalizeOptions', () => {
     const options = await normalizeOptions(
       {
         projectName: 'test',
-        framework: 'react-cra',
+        framework: 'react',
         routerOnly: true,
         addOns: ['form'],
         deployment: 'nitro',
@@ -360,7 +541,7 @@ describe('normalizeOptions', () => {
 
   it('should handle the funky Windows edge case with CLI parsing', async () => {
     __testRegisterFramework({
-      id: 'react-cra',
+      id: 'react',
       name: 'react',
       getAddOns: () => [
         {
@@ -421,14 +602,21 @@ describe('validateLegacyCreateFlags', () => {
     expect(result.error).toContain('JavaScript/JSX templates are not supported')
   })
 
-  it('errors for unknown template values', () => {
+  it('does not error for non-legacy template values', () => {
     const result = validateLegacyCreateFlags({ template: 'foo' })
-    expect(result.error).toContain('Invalid --template value')
+    expect(result.error).toBeUndefined()
   })
 
   it('warns for supported deprecated template values', () => {
     const result = validateLegacyCreateFlags({ template: 'tsx' })
     expect(result.error).toBeUndefined()
     expect(result.warnings[0]).toContain('--template')
+  })
+
+  it('warns when --starter is used', () => {
+    const result = validateLegacyCreateFlags({ starter: 'ecommerce' })
+    expect(result.error).toBeUndefined()
+    expect(result.warnings[0]).toContain('--starter')
+    expect(result.warnings[0]).toContain('deprecated')
   })
 })

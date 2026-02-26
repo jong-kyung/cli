@@ -45,7 +45,7 @@ node ../cli/packages/cli/dist/index.js create my-app
 | Term      | Definition                               | CLI Flag      |
 | --------- | ---------------------------------------- | ------------- |
 | Add-on    | Plugin that extends apps (auth, DB, etc) | `--add-ons`   |
-| Starter   | Reusable preset of add-ons (config only) | `--starter`   |
+| Template  | Reusable project template                  | `--template`  |
 | Framework | React or Solid                           | `--framework` |
 
 ## CLI Commands
@@ -55,7 +55,7 @@ node ../cli/packages/cli/dist/index.js create my-app
 | `tanstack create [name]`        | Create TanStack Start app |
 | `tanstack add [add-ons]`        | Add to existing project   |
 | `tanstack add-on init/compile`  | Create custom add-on      |
-| `tanstack starter init/compile` | Create custom starter     |
+| `tanstack template init/compile` | Create custom template    |
 | `tanstack mcp [--sse]`          | Start MCP server          |
 | `tanstack pin-versions`         | Pin TanStack packages     |
 
@@ -67,7 +67,7 @@ node ../cli/packages/cli/dist/index.js create my-app
 | `--framework <name>` | React or Solid                                          |
 | `--toolchain <id>`   | Toolchain (use `--list-add-ons` to see options)         |
 | `--deployment <id>`  | Deployment target (use `--list-add-ons` to see options) |
-| `--starter <url>`    | Use starter preset                                      |
+| `--template <url-or-id>` | Use template URL/path or built-in ID               |
 | `--no-git`           | Skip git init                                           |
 | `--no-install`       | Skip npm install                                        |
 | `-y`                 | Accept defaults                                         |
@@ -119,3 +119,10 @@ node packages/cli/dist/index.js create test --add-ons http://localhost:9080/info
 | `packages/create/src/frameworks/` | Framework implementations |
 | `packages/create/src/app-*.ts`    | App creation logic        |
 | `.tanstack.json`                  | Generated project config  |
+
+
+## Playbook Skills
+
+This project uses TanStack Playbooks. Run `npx playbook list` to discover
+available AI coding skills. Before working with a library that has skills,
+read the relevant SKILL.md file at the path shown in the list output.

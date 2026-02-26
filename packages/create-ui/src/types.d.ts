@@ -6,7 +6,7 @@ import type {
 
 export type ApplicationMode = 'add' | 'setup' | 'none'
 
-export type StarterInfo = {
+export type TemplateInfo = {
   url: string
   id: string
   name: string
@@ -20,6 +20,8 @@ export type StarterInfo = {
   banner?: string
   dependsOn?: Array<string>
 }
+
+export type StarterInfo = TemplateInfo
 
 // Files
 
@@ -62,6 +64,12 @@ export type FileTreeItem = TreeDataItem & {
 }
 
 export type Registry = {
+  templates?: Array<{
+    name: string
+    description: string
+    url: string
+    banner?: string
+  }>
   starters: Array<{
     name: string
     description: string

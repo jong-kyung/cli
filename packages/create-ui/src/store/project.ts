@@ -9,7 +9,7 @@ import { getAddOnStatus } from './add-ons'
 
 import type { SerializedOptions } from '@tanstack/create'
 
-import type { AddOnInfo, DryRunOutput, StarterInfo } from '../types'
+import type { AddOnInfo, DryRunOutput, TemplateInfo } from '../types'
 
 export const useProjectOptions = create<
   SerializedOptions & { initialized: boolean }
@@ -67,10 +67,10 @@ const useMutableAddOns = create<{
   customAddOns: [],
 }))
 
-export const useProjectStarter = create<{
-  projectStarter: StarterInfo | undefined
+export const useProjectTemplate = create<{
+  projectTemplate: TemplateInfo | undefined
 }>(() => ({
-  projectStarter: undefined,
+  projectTemplate: undefined,
 }))
 
 export function addCustomAddOn(addOn: AddOnInfo) {
@@ -92,7 +92,7 @@ export function useAddOns() {
   const addOnsByMode = useAddOnsByMode()
   const forcedAddOns = useForcedAddOns()
   const { userSelectedAddOns, customAddOns } = useMutableAddOns()
-  const projectStarter = useProjectStarter().projectStarter
+  const projectTemplate = useProjectTemplate().projectTemplate
 
   const availableAddOns = useMemo(() => {
     if (!ready) return []
@@ -106,7 +106,7 @@ export function useAddOns() {
   const addOnState = useMemo(() => {
     if (!ready) return {}
     const originalAddOns: Set<string> = new Set()
-    for (const addOn of projectStarter?.dependsOn || []) {
+    for (const addOn of projectTemplate?.dependsOn || []) {
       originalAddOns.add(addOn)
     }
     for (const addOn of originalSelectedAddOns) {
@@ -125,7 +125,7 @@ export function useAddOns() {
     availableAddOns,
     userSelectedAddOns,
     originalSelectedAddOns,
-    projectStarter?.dependsOn,
+    projectTemplate?.dependsOn,
     forcedAddOns,
   ])
 
@@ -217,14 +217,14 @@ export function useAddOns() {
   }
 }
 
-const useHasProjectStarter = () =>
-  useProjectStarter((state) => state.projectStarter === undefined)
+const useHasProjectTemplate = () =>
+  useProjectTemplate((state) => state.projectTemplate === undefined)
 
 export const useModeEditable = () => {
   const ready = useReady()
   const forcedRouterMode = useForcedRouterMode()
-  const hasProjectStarter = useHasProjectStarter()
-  return ready ? !forcedRouterMode && hasProjectStarter : false
+  const hasProjectTemplate = useHasProjectTemplate()
+  return ready ? !forcedRouterMode && hasProjectTemplate : false
 }
 
 export const useTypeScriptEditable = () => {
@@ -269,7 +269,7 @@ export function useDryRun() {
   const applicationMode = useApplicationMode()
   const { initialized, ...projectOptions } = useProjectOptions()
   const { userSelectedAddOns, chosenAddOns } = useAddOns()
-  const projectStarter = useProjectStarter().projectStarter
+  const projectTemplate = useProjectTemplate().projectTemplate
 
   const { data: dryRunOutput } = useQuery<DryRunOutput>({
     queryKey: [
@@ -277,7 +277,7 @@ export function useDryRun() {
       applicationMode,
       JSON.stringify(projectOptions),
       JSON.stringify(userSelectedAddOns),
-      projectStarter?.url,
+      projectTemplate?.url,
     ],
     queryFn: async () => {
       if (applicationMode === 'none' || !ready || !initialized) {
@@ -287,7 +287,7 @@ export function useDryRun() {
           deletedFiles: [],
         }
       } else if (applicationMode === 'setup') {
-        return dryRunCreateApp(projectOptions, chosenAddOns, projectStarter)
+        return dryRunCreateApp(projectOptions, chosenAddOns, projectTemplate)
       } else {
         return dryRunAddToApp(userSelectedAddOns)
       }
@@ -354,16 +354,20 @@ export function setTypeScript(typescript: boolean) {
   })
 }
 
-export function setProjectStarter(starter: StarterInfo | undefined) {
-  useProjectStarter.setState(() => ({
-    projectStarter: starter,
+export function setProjectTemplate(template: TemplateInfo | undefined) {
+  useProjectTemplate.setState(() => ({
+    projectTemplate: template,
   }))
-  if (starter) {
+  if (template) {
     useProjectOptions.setState({
-      mode: starter.mode,
+      mode: template.mode,
     })
   }
 }
+
+// Legacy aliases
+export const useProjectStarter = useProjectTemplate
+export const setProjectStarter = setProjectTemplate
 
 export function useManager() {
   const ready = useReady()

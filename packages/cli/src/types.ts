@@ -13,10 +13,12 @@ export interface CliOptions {
   mcp?: boolean
   mcpSse?: boolean
   starter?: string
+  templateId?: string
   targetDir?: string
   interactive?: boolean
   ui?: boolean
   devWatch?: string
+  runDev?: boolean
   install?: boolean
   addOnConfig?: string
   force?: boolean

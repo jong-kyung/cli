@@ -1,12 +1,12 @@
 import { toast } from 'sonner'
 
 import {
-  setProjectStarter,
+  setProjectTemplate,
   useApplicationMode,
   useRegistry,
   useStartupDialog,
 } from '../store/project'
-import { loadRemoteStarter } from '../lib/api'
+import { loadRemoteTemplate } from '../lib/api'
 
 import {
   Dialog,
@@ -25,19 +25,23 @@ export default function StartupDialog() {
   const registry = useRegistry()
   const { open, setOpen, dontShowAgain, setDontShowAgain } = useStartupDialog()
 
-  if (mode !== 'setup' || !registry || registry?.starters?.length === 0) {
+  if (
+    mode !== 'setup' ||
+    !registry ||
+    (registry?.templates || registry?.starters || []).length === 0
+  ) {
     return null
   }
 
   async function onImport(registryUrl: string) {
-    const data = await loadRemoteStarter(registryUrl)
+    const data = await loadRemoteTemplate(registryUrl)
 
     if ('error' in data) {
-      toast.error('Failed to load starter', {
+      toast.error('Failed to load template', {
         description: data.error,
       })
     } else {
-      setProjectStarter(data)
+      setProjectTemplate(data)
       setOpen(false)
     }
   }
@@ -47,7 +51,7 @@ export default function StartupDialog() {
       <DialogContent className="sm:min-w-[425px] sm:max-w-fit">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
-            Would you like to use a starter project?
+            Would you like to use a template?
           </DialogTitle>
         </DialogHeader>
         <div>

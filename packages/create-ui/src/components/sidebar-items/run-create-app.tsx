@@ -15,7 +15,7 @@ import {
   useAddOns,
   useApplicationMode,
   useProjectOptions,
-  useProjectStarter,
+  useProjectTemplate,
 } from '../../store/project'
 import StatusList from '../status-list'
 import { createAppStreaming, shutdown } from '../../lib/api'
@@ -28,7 +28,7 @@ export default function RunCreateApp() {
   const mode = useApplicationMode()
   const options = useProjectOptions()
   const { chosenAddOns } = useAddOns()
-  const { projectStarter } = useProjectStarter()
+  const { projectTemplate } = useProjectTemplate()
 
   if (mode !== 'setup') {
     return null
@@ -37,7 +37,7 @@ export default function RunCreateApp() {
   async function onAddToApp() {
     setIsRunning(true)
     monitorStream(
-      await createAppStreaming(options, chosenAddOns, projectStarter),
+      await createAppStreaming(options, chosenAddOns, projectTemplate),
     )
   }
 

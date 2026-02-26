@@ -13,35 +13,35 @@ import {
   DialogTitle,
 } from '../ui/dialog'
 import {
-  setProjectStarter,
+  setProjectTemplate,
   useApplicationMode,
-  useProjectStarter,
+  useProjectTemplate,
   useRegistry,
 } from '../../store/project'
-import { loadRemoteStarter } from '../../lib/api'
+import { loadRemoteTemplate } from '../../lib/api'
 import { StartersCarousel } from '../starters-carousel'
 
-export default function Starter() {
+export default function Template() {
   const [url, setUrl] = useState('')
   const [open, setOpen] = useState(false)
 
   const mode = useApplicationMode()
 
-  const { projectStarter } = useProjectStarter()
+  const { projectTemplate } = useProjectTemplate()
 
   if (mode !== 'setup') {
     return null
   }
 
   async function onImport(registryUrl?: string) {
-    const data = await loadRemoteStarter(registryUrl || url)
+    const data = await loadRemoteTemplate(registryUrl || url)
 
     if ('error' in data) {
-      toast.error('Failed to load starter', {
+      toast.error('Failed to load template', {
         description: data.error,
       })
     } else {
-      setProjectStarter(data)
+      setProjectTemplate(data)
       setOpen(false)
     }
   }
@@ -50,31 +50,31 @@ export default function Starter() {
 
   return (
     <>
-      {projectStarter?.banner && (
+      {projectTemplate?.banner && (
         <div className="flex justify-center mb-4">
           <div className="p-2 bg-gray-300 rounded-lg shadow-xl shadow-gray-800">
             <img
-              src={projectStarter.banner}
-              alt="Starter Banner"
+              src={projectTemplate.banner}
+              alt="Template Banner"
               className="w-40 max-w-full"
             />
           </div>
         </div>
       )}
-      {projectStarter?.name && (
+      {projectTemplate?.name && (
         <div className="text-md mb-4">
           <Button
             variant="outline"
             size="sm"
             className="mr-2"
             onClick={() => {
-              setProjectStarter(undefined)
+              setProjectTemplate(undefined)
             }}
           >
             <TrashIcon className="w-4 h-4" />
           </Button>
-          <span className="font-bold">Starter: </span>
-          {projectStarter.name}
+          <span className="font-bold">Template: </span>
+          {projectTemplate.name}
         </div>
       )}
       <div>
@@ -87,14 +87,14 @@ export default function Starter() {
           }}
         >
           <FileBoxIcon className="w-4 h-4" />
-          Set Project Starter
+          Set Project Template
         </Button>
         <Dialog modal open={open} onOpenChange={setOpen}>
           <DialogContent className="sm:min-w-[425px] sm:max-w-fit">
             <DialogHeader>
-              <DialogTitle>Project Starter URL</DialogTitle>
+              <DialogTitle>Project Template URL or ID</DialogTitle>
             </DialogHeader>
-            {registry?.starters && (
+            {(registry?.templates || registry?.starters) && (
               <div>
                 <StartersCarousel onImport={(url) => onImport(url)} />
               </div>
@@ -103,7 +103,7 @@ export default function Starter() {
               <Input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://github.com/myorg/myproject/starter.json"
+                placeholder="ecommerce or https://github.com/myorg/myproject/template.json"
                 className="min-w-lg w-full"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {

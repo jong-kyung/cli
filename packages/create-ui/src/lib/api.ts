@@ -4,7 +4,7 @@ import type {
   AddOnInfo,
   DryRunOutput,
   InitialData,
-  StarterInfo,
+  TemplateInfo,
 } from '../types'
 
 // @ts-ignore - import.meta.env is not available in the browser
@@ -13,7 +13,7 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
 export async function createAppStreaming(
   options: SerializedOptions,
   chosenAddOns: Array<string>,
-  projectStarter?: StarterInfo,
+  projectTemplate?: TemplateInfo,
 ) {
   return await fetch(`${baseUrl}/api/create-app`, {
     method: 'POST',
@@ -21,7 +21,7 @@ export async function createAppStreaming(
       options: {
         ...options,
         chosenAddOns,
-        starter: projectStarter?.url || undefined,
+        starter: projectTemplate?.url || undefined,
       },
     }),
     headers: {
@@ -53,10 +53,13 @@ export async function loadRemoteAddOn(url: string) {
   return (await response.json()) as AddOnInfo | { error: string }
 }
 
-export async function loadRemoteStarter(url: string) {
-  const response = await fetch(`${baseUrl}/api/load-starter?url=${url}`)
-  return (await response.json()) as StarterInfo | { error: string }
+export async function loadRemoteTemplate(url: string) {
+  const response = await fetch(`${baseUrl}/api/load-template?url=${url}`)
+  return (await response.json()) as TemplateInfo | { error: string }
 }
+
+// Legacy alias
+export const loadRemoteStarter = loadRemoteTemplate
 
 const initialDataRequest = fetch(`${baseUrl}/api/initial-payload`)
 
@@ -68,7 +71,7 @@ export async function loadInitialData() {
 export async function dryRunCreateApp(
   options: SerializedOptions,
   chosenAddOns: Array<string>,
-  projectStarter?: StarterInfo,
+  projectTemplate?: TemplateInfo,
 ) {
   const outputReq = await fetch(`${baseUrl}/api/dry-run-create-app`, {
     method: 'POST',
@@ -79,7 +82,7 @@ export async function dryRunCreateApp(
       options: {
         ...options,
         chosenAddOns: chosenAddOns,
-        starter: projectStarter?.url,
+        starter: projectTemplate?.url,
       },
     }),
   })

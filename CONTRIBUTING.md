@@ -40,25 +40,26 @@ npx serve .add-on -l 9080
 node ../cli/packages/cli/dist/index.js create my-app --add-ons http://localhost:9080/info.json
 ```
 
-### Testing Starters Locally
+### Testing Templates Locally
 
 ```bash
-# In your starter directory
-npx serve .starter -l 9080
+# In your template directory
+npx serve .template -l 9080
 
-# Create app with local starter
-node ../cli/packages/cli/dist/index.js create my-app --starter http://localhost:9080/starter.json
+# Create app with local template
+node ../cli/packages/cli/dist/index.js create my-app --template http://localhost:9080/template.json
 ```
 
-## Dev Watch Mode
+## Dev Mode
 
-Watch framework files and auto-rebuild:
+Create a sandbox app, watch built-in framework templates/add-ons, and run the sandbox dev server:
 
 ```bash
-rm -rf test-app && node packages/cli/dist/index.js create \
-  --dev-watch ./packages/create/src/frameworks/react \
-  test-app --add-ons shadcn
+rm -rf test-app && node packages/cli/dist/index.js dev \
+  test-app --framework React --add-ons shadcn
 ```
+
+The legacy `create --dev-watch <path>` flow still works for direct watch path control.
 
 ## Developing Create UI
 

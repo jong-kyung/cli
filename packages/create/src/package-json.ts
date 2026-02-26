@@ -99,7 +99,7 @@ export function createPackageJSON(options: Options) {
   }
 
   if (options.routerOnly) {
-    if (options.framework.id === 'react-cra') {
+    if (options.framework.id === 'react') {
       delete packageJSON.dependencies?.['@tanstack/react-start']
       delete packageJSON.dependencies?.['@tanstack/react-router-ssr-query']
       packageJSON.devDependencies = {

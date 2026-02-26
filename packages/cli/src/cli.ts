@@ -9,10 +9,10 @@ import {
   SUPPORTED_PACKAGE_MANAGERS,
   addToApp,
   compileAddOn,
-  devAddOn,
   compileStarter,
   createApp,
   createSerializedOptions,
+  devAddOn,
   getAllAddOns,
   getFrameworkByName,
   getFrameworks,
@@ -105,6 +105,91 @@ export function cli({
   }
 
   const availableFrameworks = getFrameworks().map((f) => f.name)
+
+  function resolveBuiltInDevWatchPath(frameworkId: string): string {
+    const candidates = [
+      resolve(process.cwd(), 'packages/create/src/frameworks', frameworkId),
+      resolve(process.cwd(), '../create/src/frameworks', frameworkId),
+    ]
+
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        return candidate
+      }
+    }
+
+    return candidates[0]
+  }
+
+  async function startDevWatchMode(projectName: string, options: CliOptions) {
+    // Validate dev watch options
+    const validation = validateDevWatchOptions({ ...options, projectName })
+    if (!validation.valid) {
+      console.error(validation.error)
+      process.exit(1)
+    }
+
+    // Enter dev watch mode
+    if (!projectName && !options.targetDir) {
+      console.error('Project name/target directory is required for dev watch mode')
+      process.exit(1)
+    }
+
+    if (!options.framework) {
+      console.error('Failed to detect framework')
+      process.exit(1)
+    }
+
+    const framework = getFrameworkByName(options.framework)
+    if (!framework) {
+      console.error('Failed to detect framework')
+      process.exit(1)
+    }
+
+    // First, create the app normally using the standard flow
+    const normalizedOpts = await normalizeOptions(
+      {
+        ...options,
+        projectName,
+        framework: framework.id,
+      },
+      forcedAddOns,
+    )
+
+    if (!normalizedOpts) {
+      throw new Error('Failed to normalize options')
+    }
+
+    normalizedOpts.targetDir =
+      options.targetDir || resolve(process.cwd(), projectName)
+
+    // Create the initial app with minimal output for dev watch mode
+    console.log(chalk.bold('\ndev-watch'))
+    console.log(chalk.gray('├─') + ' ' + `creating initial ${appName} app...`)
+    if (normalizedOpts.install !== false) {
+      console.log(
+        chalk.gray('├─') + ' ' + chalk.yellow('⟳') + ' installing packages...',
+      )
+    }
+    const silentEnvironment = createUIEnvironment(appName, true)
+    await confirmTargetDirectorySafety(normalizedOpts.targetDir, options.force)
+    await createApp(silentEnvironment, normalizedOpts)
+    console.log(chalk.gray('└─') + ' ' + chalk.green('✓') + ` app created`)
+
+    // Now start the dev watch mode
+    const manager = new DevWatchManager({
+      watchPath: options.devWatch!,
+      targetDir: normalizedOpts.targetDir,
+      framework,
+      cliOptions: normalizedOpts,
+      packageManager: normalizedOpts.packageManager,
+      runDevCommand: options.runDev,
+      environment,
+      frameworkDefinitionInitializers,
+    })
+
+    await manager.start()
+  }
 
   const toolchains = new Set<string>()
   for (const framework of getFrameworks()) {
@@ -235,72 +320,7 @@ export function cli({
     }
 
     if (options.devWatch) {
-      // Validate dev watch options
-      const validation = validateDevWatchOptions({ ...options, projectName })
-      if (!validation.valid) {
-        console.error(validation.error)
-        process.exit(1)
-      }
-
-      // Enter dev watch mode
-      if (!projectName && !options.targetDir) {
-        console.error(
-          'Project name/target directory is required for dev watch mode',
-        )
-        process.exit(1)
-      }
-
-      if (!options.framework) {
-        console.error('Failed to detect framework')
-        process.exit(1)
-      }
-
-      const framework = getFrameworkByName(options.framework)
-      if (!framework) {
-        console.error('Failed to detect framework')
-        process.exit(1)
-      }
-
-      // First, create the app normally using the standard flow
-      const normalizedOpts = await normalizeOptions(
-        {
-          ...options,
-          projectName,
-          framework: framework.id,
-        },
-        forcedAddOns,
-      )
-
-      if (!normalizedOpts) {
-        throw new Error('Failed to normalize options')
-      }
-
-      normalizedOpts.targetDir =
-        options.targetDir || resolve(process.cwd(), projectName)
-
-      // Create the initial app with minimal output for dev watch mode
-      console.log(chalk.bold('\ndev-watch'))
-      console.log(chalk.gray('├─') + ' ' + `creating initial ${appName} app...`)
-      if (normalizedOpts.install !== false) {
-        console.log(chalk.gray('├─') + ' ' + chalk.yellow('⟳') + ' installing packages...')
-      }
-      const silentEnvironment = createUIEnvironment(appName, true)
-      await confirmTargetDirectorySafety(normalizedOpts.targetDir, options.force)
-      await createApp(silentEnvironment, normalizedOpts)
-      console.log(chalk.gray('└─') + ' ' + chalk.green('✓') + ` app created`)
-
-      // Now start the dev watch mode
-      const manager = new DevWatchManager({
-        watchPath: options.devWatch,
-        targetDir: normalizedOpts.targetDir,
-        framework,
-        cliOptions: normalizedOpts,
-        packageManager: normalizedOpts.packageManager,
-        environment,
-        frameworkDefinitionInitializers,
-      })
-
-      await manager.start()
+      await startDevWatchMode(projectName, options)
       return
     }
 
@@ -317,6 +337,9 @@ export function cli({
       if (
         cliOptions.routerOnly !== true &&
         cliOptions.template &&
+        ['file-router', 'typescript', 'tsx', 'javascript', 'js', 'jsx'].includes(
+          cliOptions.template.toLowerCase(),
+        ) &&
         cliOptions.template.toLowerCase() !== 'file-router'
       ) {
         cliOptions.routerOnly = true
@@ -411,6 +434,10 @@ export function cli({
         '--framework <type>',
         `project framework (${availableFrameworks.join(', ')})`,
         (value) => {
+          if (value.toLowerCase() === 'react-cra') {
+            return 'react'
+          }
+
           if (
             !availableFrameworks.some(
               (f) => f.toLowerCase() === value.toLowerCase(),
@@ -428,9 +455,14 @@ export function cli({
 
     cmd
       .option(
-        '--starter [url]',
-        'initialize this project from a starter URL',
+        '--starter [url-or-id]',
+        'DEPRECATED: use --template. Initializes from a template URL or built-in id',
         false,
+      )
+      .option('--template-id <id>', 'initialize using a built-in template id')
+      .option(
+        '--template [url-or-id]',
+        'initialize this project from a template URL or built-in template id',
       )
       .option('--no-install', 'skip installing dependencies')
       .option<PackageManager>(
@@ -451,13 +483,10 @@ export function cli({
         '--dev-watch <path>',
         'Watch a framework directory for changes and auto-rebuild',
       )
+      .option('--run-dev', 'Run the app dev server alongside dev-watch', false)
       .option(
         '--router-only',
         'Use router-only compatibility mode (file-based routing without TanStack Start)',
-      )
-      .option(
-        '--template <type>',
-        'Deprecated: compatibility flag from create-tsrouter-app',
       )
       .option(
         '--tailwind',
@@ -552,6 +581,34 @@ export function cli({
 
   configureCreateCommand(createCommand)
   createCommand.action(handleCreate)
+
+  // === DEV SUBCOMMAND ===
+  const devCommand = program
+    .command('dev')
+    .description(
+      'Create a sandbox app and watch built-in framework templates/add-ons',
+    )
+
+  configureCreateCommand(devCommand)
+  devCommand.action(async (projectName: string, options: CliOptions) => {
+    const frameworkName = options.framework || defaultFramework || 'React'
+    const framework = getFrameworkByName(frameworkName)
+    if (!framework) {
+      console.error(`Unknown framework: ${frameworkName}`)
+      process.exit(1)
+    }
+
+    const watchPath = resolveBuiltInDevWatchPath(framework.id)
+    const devOptions: CliOptions = {
+      ...options,
+      framework: framework.name,
+      devWatch: watchPath,
+      runDev: true,
+      install: options.install ?? true,
+    }
+
+    await startDevWatchMode(projectName, devOptions)
+  })
 
   // === MCP SUBCOMMAND ===
   program
@@ -707,17 +764,32 @@ Remove your node_modules directory and package lock file and re-install.`,
       await devAddOn(environment)
     })
 
-  // === STARTER SUBCOMMAND ===
+  // === TEMPLATE SUBCOMMAND ===
+  const templateCommand = program.command('template')
+  templateCommand
+    .command('init')
+    .description('Initialize a project template from the current project')
+    .action(async () => {
+      await initStarter(environment)
+    })
+  templateCommand
+    .command('compile')
+    .description('Compile the template JSON file for the current project')
+    .action(async () => {
+      await compileStarter(environment)
+    })
+
+  // Legacy alias for template command
   const starterCommand = program.command('starter')
   starterCommand
     .command('init')
-    .description('Initialize a project starter from the current project')
+    .description('Deprecated alias: initialize a project template')
     .action(async () => {
       await initStarter(environment)
     })
   starterCommand
     .command('compile')
-    .description('Compile the starter JSON file for the current project')
+    .description('Deprecated alias: compile the template JSON file')
     .action(async () => {
       await compileStarter(environment)
     })

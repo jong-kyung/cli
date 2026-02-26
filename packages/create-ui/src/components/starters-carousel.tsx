@@ -13,24 +13,26 @@ export function StartersCarousel({
     return null
   }
 
+  const templates = registry.templates || registry.starters || []
+
   return (
     <div>
       <Carousel>
         <CarouselContent>
-          {registry.starters.map((starter) => (
-            <CarouselItem className="basis-1/3" key={starter.url}>
+          {templates.map((template) => (
+            <CarouselItem className="basis-1/3" key={template.url}>
               <div
                 className="p-2 flex flex-col items-center hover:cursor-pointer hover:bg-gray-700/50 hover:text-white rounded-lg"
                 onClick={() => {
-                  onImport(starter.url)
+                  onImport(template.url)
                 }}
               >
                 <img
-                  src={starter.banner}
-                  alt={starter.name}
+                  src={template.banner}
+                  alt={template.name}
                   className="w-100 max-w-full"
                 />
-                <div className="text-md font-bold">{starter.name}</div>
+                <div className="text-md font-bold">{template.name}</div>
               </div>
             </CarouselItem>
           ))}
