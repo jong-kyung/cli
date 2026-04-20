@@ -1,5 +1,21 @@
 # @tanstack/cli
 
+## 0.64.1
+
+### Patch Changes
+
+- Fix interactive mode not prompting for all options. ([#435](https://github.com/TanStack/cli/pull/435))
+
+  - Default to interactive mode. Previously, `tanstack create my-app` silently applied defaults for framework, deployment, and install. Opt out with `--yes` / `--non-interactive`.
+  - Add framework selection prompt when the CLI supports multiple frameworks and no `--framework` flag is passed.
+  - Add "install dependencies now?" prompt when `--no-install` is not passed.
+  - Show deployment adapter prompt by default (previously required `showDeploymentOptions: true`).
+  - Honor `forcedDeployment` as the default selection in the deployment prompt, so deprecated aliases keep a sensible default.
+  - Preserve explicit `--add-ons` arrays instead of overwriting them with the interactive sentinel.
+
+- Updated dependencies [[`e3de582`](https://github.com/TanStack/cli/commit/e3de582f050bff32009d3ebefffbb9ec94a15c92)]:
+  - @tanstack/create@0.63.5
+
 ## 0.64.0
 
 ### Minor Changes
