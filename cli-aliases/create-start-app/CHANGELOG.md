@@ -1,5 +1,12 @@
 # create-start-app
 
+## 0.59.27
+
+### Patch Changes
+
+- Updated dependencies [[`dcacf77`](https://github.com/TanStack/cli/commit/dcacf7734280c103ed7a77374c1bcb4520efcb98)]:
+  - @tanstack/cli@0.64.6
+
 ## 0.59.26
 
 ### Patch Changes
