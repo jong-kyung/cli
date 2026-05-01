@@ -1,5 +1,23 @@
 # @tanstack/cli
 
+## 0.65.0
+
+### Minor Changes
+
+- feat(cli): auto-install TanStack Intent during scaffolding ([#442](https://github.com/TanStack/cli/pull/442))
+
+  `tanstack create` and `tanstack add` now run `npx @tanstack/intent install`
+  after dependency installation, wiring up skill mappings for coding agents.
+  The behavior is controlled by a new `--intent` / `--no-intent` flag (default
+  on) and persists to `.cta.json` so subsequent `add` invocations honor the
+  original choice. Failures are surfaced as warnings instead of aborting the
+  scaffold.
+
+### Patch Changes
+
+- Updated dependencies [[`37e83fb`](https://github.com/TanStack/cli/commit/37e83fbf324c6d60da09a4f2f268f540c8687d5f)]:
+  - @tanstack/create@0.64.0
+
 ## 0.64.6
 
 ### Patch Changes
