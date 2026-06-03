@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import { devtools } from '@tanstack/devtools-vite'
-import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from "@tailwindcss/vite"
 <% if (routerOnly) { %>
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
@@ -10,14 +9,10 @@ import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
 import solidPlugin from 'vite-plugin-solid';
 <% for(const integration of integrations.filter(i => i.type === 'vite-plugin')) { %><%- integrationImportContent(integration) %>
 <% } %>
-import lucidePreprocess from "vite-plugin-lucide-preprocess";
 
 export default defineConfig({
-  plugins: [lucidePreprocess(), devtools(), <% for(const integration of integrations.filter(i => i.type === 'vite-plugin')) { %><%- integrationImportCode(integration) %>,<% } %>
-    // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
+  resolve: { tsconfigPaths: true },
+  plugins: [devtools(), <% for(const integration of integrations.filter(i => i.type === 'vite-plugin')) { %><%- integrationImportCode(integration) %>,<% } %>
     tailwindcss(),
     <% if (routerOnly) { %>tanstackRouter({ target: 'solid', autoCodeSplitting: true }),<% } else { %>tanstackStart(),<% } %>
     solidPlugin(<% if (!routerOnly) { %>{ ssr: true }<% } %>),

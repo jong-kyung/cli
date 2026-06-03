@@ -10,39 +10,58 @@ concurrency:
 
 env:
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-permissions:
-  contents: write
-  id-token: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   release:
     name: Release
-    if: github.repository_owner == 'TanStack'
+    if: ${{ github.repository_owner == 'TanStack' && !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: read
+      statuses: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Setup Tools
-        uses: tanstack/config/.github/setup@main
+        uses: tanstack/config/.github/setup@e4b48f16568324f76f467aa4c2aac2f05db632c3 # main
       - name: Build
         run: pnpm build
-      - name: Test
-        run: pnpm test
-      - name: Run Changesets (version or publish)
-        uses: changesets/action@v1.5.3
-        with:
-          version: pnpm run changeset:version
-          publish: pnpm run changeset:publish
-          commit: "ci: Version Packages"
-          title: "ci: Version Packages"
+      - name: Test Unit
+        run: pnpm test:unit
+      - name: Install Playwright Chrome
+        run: pnpm --filter @tanstack/cli exec playwright install --with-deps chrome
+      - name: E2E Blocking
+        run: pnpm --filter @tanstack/cli test:e2e
+      - name: Generate Semantic Changeset Fallback
+        run: pnpm run changeset:generate
+
+      - name: Prepare Release Context
+        id: release
+        run: pnpm run release:prepare
+
+      - name: Version Packages
+        if: steps.release.outputs.has_changesets == 'true'
+        run: pnpm run changeset:version
+
+      - name: Detect Versioning Changes
+        if: steps.release.outputs.has_changesets == 'true'
+        id: changes
+        run: pnpm run release:detect-changes
+
+      - name: Commit Version Updates
+        if: steps.release.outputs.has_changesets == 'true' && steps.changes.outputs.has_changes == 'true'
+        run: pnpm run release:commit-and-push
+
+      - name: Publish Packages
+        if: steps.release.outputs.has_changesets == 'true' && steps.changes.outputs.has_changes == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Comment on PRs about release
-        if: steps.changesets.outputs.published == 'true'
-        uses: tanstack/config/.github/comment-on-release@main
-        with:
-          published-packages: ${{ steps.changesets.outputs.publishedPackages }}
+          NPM_TAG: ${{ steps.release.outputs.npm_tag }}
+        run: pnpm changeset publish --tag "$NPM_TAG"

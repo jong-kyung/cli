@@ -31,7 +31,7 @@ npx @tanstack/cli create my-app
 - **TanStack Start** - Full-stack SSR framework (default)
 - **TanStack Router** - Type-safe routing (`--router-only` for SPA)
 - **Add-ons** - Auth, database, deployment, monitoring, and more
-- **MCP Server** - AI-assisted development
+- **CLI Introspection** - Agent-friendly discovery via JSON CLI output
 
 ## Quick Start
 
@@ -50,6 +50,11 @@ npx @tanstack/cli add clerk drizzle
 
 # List available add-ons
 npx @tanstack/cli create --list-add-ons
+
+# Agent-friendly introspection
+npx @tanstack/cli create --addon-details tanstack-query --json
+npx @tanstack/cli libraries --json
+npx @tanstack/cli search-docs "loaders" --library router --framework react --json
 ```
 
 ## Documentation
@@ -57,6 +62,22 @@ npx @tanstack/cli create --list-add-ons
 - [CLI Reference](https://tanstack.com/cli/latest/docs/cli-reference)
 - [TanStack Start](https://tanstack.com/start)
 - [TanStack Router](https://tanstack.com/router)
+
+## Telemetry
+
+TanStack CLI sends anonymous usage telemetry by default.
+
+- Sent: command usage, durations, selected framework/package manager/add-on ids, and coarse result metadata
+- Never sent: project names, file paths, target directories, raw search queries, raw template URLs/paths, add-on config values, env vars, or raw error messages
+- Disabled automatically in `CI`, or when `DO_NOT_TRACK=1` or `TANSTACK_CLI_TELEMETRY_DISABLED=1`
+
+Manage it with:
+
+```bash
+tanstack telemetry status
+tanstack telemetry disable
+tanstack telemetry enable
+```
 
 ## Get Involved
 

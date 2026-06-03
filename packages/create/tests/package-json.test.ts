@@ -92,6 +92,38 @@ describe('createPackageJSON', () => {
     })
   })
 
+  it('should merge pnpm onlyBuiltDependencies from base and add-ons', () => {
+    const packageJSON = createPackageJSON({
+      chosenAddOns: [
+        {
+          packageTemplate:
+            '{"pnpm": {"onlyBuiltDependencies": ["better-sqlite3"]}}',
+        },
+      ],
+      addOnOptions: {},
+      mode: 'file-router',
+      typescript: true,
+      tailwind: true,
+      projectName: 'test',
+      framework: {
+        basePackageJSON: {
+          pnpm: {
+            onlyBuiltDependencies: ['esbuild', 'lightningcss'],
+          },
+        },
+        optionalPackages: {
+          typescript: {},
+          tailwindcss: {},
+          'file-router': {},
+        },
+      } as unknown as Framework,
+    } as unknown as Options)
+
+    expect(packageJSON.pnpm).toEqual({
+      onlyBuiltDependencies: ['esbuild', 'lightningcss', 'better-sqlite3'],
+    })
+  })
+
   it('should provide execute command helper in package templates', () => {
     const packageJSON = createPackageJSON({
       chosenAddOns: [

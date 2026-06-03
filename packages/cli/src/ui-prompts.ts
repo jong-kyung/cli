@@ -20,6 +20,47 @@ import type { AddOn, PackageManager } from '@tanstack/create'
 
 import type { Framework } from '@tanstack/create/dist/types/types.js'
 
+export async function selectFramework(
+  frameworks: Array<Framework>,
+  defaultFrameworkId?: string,
+): Promise<Framework> {
+  const initialValue =
+    (defaultFrameworkId &&
+      frameworks.find(
+        (f) => f.id.toLowerCase() === defaultFrameworkId.toLowerCase(),
+      )?.id) ||
+    frameworks[0]!.id
+
+  const selected = await select({
+    message: 'Select framework:',
+    options: frameworks.map((f) => ({ value: f.id, label: f.name })),
+    initialValue,
+  })
+
+  if (isCancel(selected)) {
+    cancel('Operation cancelled.')
+    process.exit(0)
+  }
+
+  const framework = frameworks.find((f) => f.id === selected)
+  if (!framework) {
+    throw new Error(`Unknown framework: ${selected}`)
+  }
+  return framework
+}
+
+export async function selectInstall(): Promise<boolean> {
+  const install = await confirm({
+    message: 'Would you like to install dependencies now?',
+    initialValue: true,
+  })
+  if (isCancel(install)) {
+    cancel('Operation cancelled.')
+    process.exit(0)
+  }
+  return install
+}
+
 export async function getProjectName(): Promise<string> {
   const value = await text({
     message: 'What would you like to name your project?',
@@ -60,8 +101,37 @@ export async function selectPackageManager(): Promise<PackageManager> {
   return packageManager
 }
 
-// Track if we've shown the multiselect help text
-let hasShownMultiselectHelp = false
+export async function selectTemplate(
+  templates: Array<{ id: string; name: string; description?: string }>,
+): Promise<string | undefined> {
+  if (templates.length === 0) {
+    return undefined
+  }
+
+  const selected = await select({
+    message: 'Would you like to start from a template?',
+    options: [
+      {
+        value: undefined,
+        label: 'None (base starter)',
+        hint: 'Two-page baseline (Home + About)',
+      },
+      ...templates.map((template) => ({
+        value: template.id,
+        label: template.name,
+        hint: template.description,
+      })),
+    ],
+    initialValue: undefined,
+  })
+
+  if (isCancel(selected)) {
+    cancel('Operation cancelled.')
+    process.exit(0)
+  }
+
+  return selected
+}
 
 export async function selectAddOns(
   framework: Framework,
@@ -77,15 +147,6 @@ export async function selectAddOns(
     return []
   }
 
-  // Show help text only once
-  if (!hasShownMultiselectHelp) {
-    note(
-      'Use ↑/↓ to navigate • Space to select/deselect • Enter to confirm',
-      'Keyboard Shortcuts',
-    )
-    hasShownMultiselectHelp = true
-  }
-
   if (allowMultiple) {
     const selectableAddOns = addOns.filter(
       (addOn) => !forcedAddOns.includes(addOn.id),
@@ -95,13 +156,18 @@ export async function selectAddOns(
       return []
     }
 
+    note(
+      'Use ↑/↓ to navigate • Space to select/deselect • Enter to confirm',
+      'Keyboard Shortcuts',
+    )
+
     const value = await multiselect({
-      message,
+      message: `${message} (Space to toggle, Enter to confirm)`,
       options: selectableAddOns.map((addOn) => ({
-          value: addOn.id,
-          label: addOn.name,
-          hint: addOn.description,
-        })),
+        value: addOn.id,
+        label: addOn.name,
+        hint: addOn.description,
+      })),
       maxItems: selectableAddOns.length,
       required: false,
     })
@@ -318,6 +384,7 @@ export async function promptForEnvVars(
 export async function selectDeployment(
   framework: Framework,
   deployment?: string,
+  forcedDeployment?: string,
 ): Promise<string | undefined> {
   const deployments = new Set<AddOn>()
   let initialValue: string | undefined = undefined
@@ -329,21 +396,28 @@ export async function selectDeployment(
       if (deployment && addOn.id === deployment) {
         return deployment
       }
-      if (addOn.default) {
+      if (forcedDeployment && addOn.id === forcedDeployment) {
+        initialValue = addOn.id
+      } else if (!initialValue && addOn.default) {
         initialValue = addOn.id
       }
     }
   }
 
+  if (deployments.size === 0) {
+    return undefined
+  }
+
   const dp = await select({
-    message: 'Select deployment adapter',
+    message: 'Select deployment adapter:',
     options: [
+      { value: undefined, label: 'None' },
       ...Array.from(deployments).map((d) => ({
         value: d.id,
         label: d.name,
       })),
     ],
-    initialValue: initialValue,
+    initialValue,
   })
 
   if (isCancel(dp)) {

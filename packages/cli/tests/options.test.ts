@@ -5,19 +5,22 @@ import {
   __testClearFrameworks,
   __testRegisterFramework,
 } from '@tanstack/create'
+import * as create from '@tanstack/create'
 
 import * as prompts from '../src/ui-prompts'
+import * as commandLine from '../src/command-line'
 
 import type { Framework } from '@tanstack/create'
 
 import type { CliOptions } from '../src/types'
 
 vi.mock('../src/ui-prompts')
+vi.mock('../src/command-line')
 
 beforeEach(() => {
   __testClearFrameworks()
   __testRegisterFramework({
-    id: 'react-cra',
+    id: 'react',
     name: 'react',
     getAddOns: () => [
       {
@@ -53,7 +56,7 @@ beforeEach(() => {
 })
 
 const baseCliOptions: CliOptions = {
-  framework: 'react-cra',
+  framework: 'react',
   addOns: [],
   toolchain: undefined,
   projectName: undefined,
@@ -61,7 +64,31 @@ const baseCliOptions: CliOptions = {
 }
 
 function setBasicSpies() {
+  vi.spyOn(commandLine, 'listTemplateChoices').mockImplementation(async () => [])
+  vi
+    .spyOn(commandLine, 'resolveStarterSpecifier')
+    .mockImplementation(async (value) =>
+      value === 'blog'
+        ? 'https://example.com/react/blog/starter.json'
+        : value,
+    )
+  vi.spyOn(create, 'loadStarter').mockImplementation(
+    async (id) =>
+      ({
+        id: String(id),
+        name: 'Blog',
+        description: 'Blog template',
+        type: 'starter',
+        framework: 'react',
+        mode: 'file-router',
+        typescript: true,
+        dependsOn: [],
+        files: {},
+        deletedFiles: [],
+      }) as any,
+  )
   vi.spyOn(prompts, 'getProjectName').mockImplementation(async () => 'hello')
+  vi.spyOn(prompts, 'selectTemplate').mockImplementation(async () => undefined)
   vi.spyOn(prompts, 'selectPackageManager').mockImplementation(
     async () => 'npm',
   )
@@ -109,6 +136,44 @@ describe('promptForCreateOptions', () => {
     const options = await promptForCreateOptions(baseCliOptions, {})
 
     expect(options?.tailwind).toBe(true)
+  })
+
+  it('prompts for templates when none was provided', async () => {
+    setBasicSpies()
+    vi.spyOn(commandLine, 'listTemplateChoices').mockImplementation(async () => [
+      {
+        id: 'blog',
+        name: 'Blog',
+        description: 'Blog template',
+        framework: 'react',
+      },
+    ])
+
+    await promptForCreateOptions(baseCliOptions, {})
+
+    expect(prompts.selectTemplate).toHaveBeenCalledWith([
+      {
+        id: 'blog',
+        name: 'Blog',
+        description: 'Blog template',
+      },
+    ])
+  })
+
+  it('skips template prompt when template was provided via CLI', async () => {
+    setBasicSpies()
+
+    await promptForCreateOptions({ ...baseCliOptions, template: 'blog' }, {})
+
+    expect(prompts.selectTemplate).not.toHaveBeenCalled()
+  })
+
+  it('skips template prompt in router-only mode', async () => {
+    setBasicSpies()
+
+    await promptForCreateOptions({ ...baseCliOptions, routerOnly: true }, {})
+
+    expect(prompts.selectTemplate).not.toHaveBeenCalled()
   })
 
   //// Package manager

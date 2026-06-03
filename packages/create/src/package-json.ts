@@ -7,7 +7,7 @@ export function mergePackageJSON(
   packageJSON: Record<string, any>,
   overlayPackageJSON?: Record<string, any>,
 ) {
-  return {
+  const mergedPackageJSON: Record<string, any> = {
     ...packageJSON,
     ...(overlayPackageJSON || {}),
     dependencies: {
@@ -23,6 +23,37 @@ export function mergePackageJSON(
       ...(overlayPackageJSON?.scripts || {}),
     },
   }
+
+  const baseOnlyBuiltDependencies = Array.isArray(
+    packageJSON.pnpm?.onlyBuiltDependencies,
+  )
+    ? packageJSON.pnpm.onlyBuiltDependencies
+    : []
+  const overlayOnlyBuiltDependencies = Array.isArray(
+    overlayPackageJSON?.pnpm?.onlyBuiltDependencies,
+  )
+    ? overlayPackageJSON.pnpm.onlyBuiltDependencies
+    : []
+
+  const onlyBuiltDependencies = [
+    ...new Set([
+      ...baseOnlyBuiltDependencies,
+      ...overlayOnlyBuiltDependencies,
+    ]),
+  ]
+
+  if (packageJSON.pnpm || overlayPackageJSON?.pnpm) {
+    mergedPackageJSON.pnpm = {
+      ...packageJSON.pnpm,
+      ...overlayPackageJSON?.pnpm,
+    }
+
+    if (onlyBuiltDependencies.length) {
+      mergedPackageJSON.pnpm.onlyBuiltDependencies = onlyBuiltDependencies
+    }
+  }
+
+  return mergedPackageJSON
 }
 
 export function createPackageJSON(options: Options) {
@@ -99,13 +130,13 @@ export function createPackageJSON(options: Options) {
   }
 
   if (options.routerOnly) {
-    if (options.framework.id === 'react-cra') {
+    if (options.framework.id === 'react') {
       delete packageJSON.dependencies?.['@tanstack/react-start']
       delete packageJSON.dependencies?.['@tanstack/react-router-ssr-query']
       packageJSON.devDependencies = {
         ...(packageJSON.devDependencies ?? {}),
         '@tanstack/router-plugin':
-          packageJSON.devDependencies?.['@tanstack/router-plugin'] ?? '^1.132.0',
+          packageJSON.devDependencies?.['@tanstack/router-plugin'] ?? 'latest',
       }
     }
 
@@ -116,7 +147,7 @@ export function createPackageJSON(options: Options) {
       packageJSON.devDependencies = {
         ...(packageJSON.devDependencies ?? {}),
         '@tanstack/router-plugin':
-          packageJSON.devDependencies?.['@tanstack/router-plugin'] ?? '^1.133.20',
+          packageJSON.devDependencies?.['@tanstack/router-plugin'] ?? 'latest',
       }
     }
   }

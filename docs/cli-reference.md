@@ -14,10 +14,10 @@ tanstack create [project-name] [options]
 | Option | Description |
 |--------|-------------|
 | `--add-ons <ids>` | Comma-separated add-on IDs |
-| `--starter <url>` | Starter URL or local path |
+| `--template <url-or-id>` | Template URL/path or built-in template ID |
 | `--package-manager <pm>` | `npm`, `pnpm`, `yarn`, `bun`, `deno` |
 | `--framework <name>` | `React`, `Solid` |
-| `--router-only` | Create file-based Router-only app without TanStack Start (add-ons/deployment/starter disabled) |
+| `--router-only` | Create file-based Router-only app without TanStack Start (add-ons/deployment/template disabled) |
 | `--toolchain <id>` | Toolchain add-on (use `--list-add-ons` to see options) |
 | `--deployment <id>` | Deployment add-on (use `--list-add-ons` to see options) |
 | `--examples` / `--no-examples` | Include or exclude demo/example pages |
@@ -30,15 +30,18 @@ tanstack create [project-name] [options]
 | `-f, --force` | Overwrite existing directory |
 | `--list-add-ons` | List all available add-ons |
 | `--addon-details <id>` | Show details for specific add-on |
+| `--json` | Output machine-readable JSON for automation |
 | `--add-on-config <json>` | JSON string with add-on options |
-| `--ui` | Launch visual project builder |
 
 ```bash
 # Examples
 tanstack create my-app -y
 tanstack create my-app --add-ons clerk,drizzle,tanstack-query
 tanstack create my-app --router-only --toolchain eslint --no-examples
-tanstack create my-app --starter https://example.com/starter.json
+tanstack create my-app --template https://example.com/template.json
+tanstack create my-app --template ecommerce
+tanstack create --list-add-ons --framework React --json
+tanstack create --addon-details drizzle --framework React --json
 ```
 
 ---
@@ -54,14 +57,14 @@ tanstack add [add-on...] [options]
 | Option | Description |
 |--------|-------------|
 | `--forced` | Force add-on installation even if conflicts exist |
-| `--ui` | Launch visual add-on picker |
 
 ```bash
 # Examples
 tanstack add clerk drizzle
 tanstack add tanstack-query,tanstack-form
-tanstack add --ui
 ```
+
+Visual setup is available at `https://tanstack.com/builder`.
 
 ---
 
@@ -91,41 +94,106 @@ See [Creating Add-ons](./creating-add-ons.md) for full guide.
 
 ---
 
-## tanstack starter
+## tanstack template
 
-Create reusable project presets.
+Create reusable project templates.
 
 ### init
 
 ```bash
-tanstack starter init
+tanstack template init
 ```
 
-Creates `starter-info.json` and `starter.json`.
+Creates `template-info.json` and `template.json`.
 
 ### compile
 
 ```bash
-tanstack starter compile
+tanstack template compile
 ```
 
-See [Starters](./starters.md) for full guide.
+See [Templates](./templates.md) for full guide.
 
----
+## tanstack libraries
 
-## tanstack mcp
-
-Start MCP server for AI agents.
+List TanStack libraries with optional group filtering.
 
 ```bash
-tanstack mcp [options]
+tanstack libraries [options]
 ```
 
 | Option | Description |
 |--------|-------------|
-| `--sse` | HTTP/SSE mode (default: stdio) |
+| `--group <group>` | Filter by group: `state`, `headlessUI`, `performance`, `tooling` |
+| `--json` | Output machine-readable JSON |
 
-See [MCP Server](./mcp/overview.md) for setup.
+```bash
+tanstack libraries
+tanstack libraries --group state --json
+```
+
+---
+
+## tanstack doc
+
+Fetch a TanStack documentation page by library and path.
+
+```bash
+tanstack doc <library> <path> [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--docs-version <version>` | Docs version (default: `latest`) |
+| `--json` | Output machine-readable JSON |
+
+```bash
+tanstack doc router framework/react/guide/data-loading
+tanstack doc query framework/react/overview --docs-version v5 --json
+```
+
+---
+
+## tanstack search-docs
+
+Search TanStack documentation.
+
+```bash
+tanstack search-docs <query> [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--library <id>` | Filter by library ID |
+| `--framework <name>` | Filter by framework |
+| `--limit <n>` | Max results (default `10`, max `50`) |
+| `--json` | Output machine-readable JSON |
+
+```bash
+tanstack search-docs "server functions" --library start
+tanstack search-docs loaders --library router --framework react --json
+```
+
+---
+
+## tanstack ecosystem
+
+List ecosystem partner recommendations.
+
+```bash
+tanstack ecosystem [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--category <category>` | Filter by category |
+| `--library <id>` | Filter by TanStack library |
+| `--json` | Output machine-readable JSON |
+
+```bash
+tanstack ecosystem --category database
+tanstack ecosystem --library router --json
+```
 
 ---
 
@@ -158,4 +226,4 @@ Projects include `.tanstack.json`:
 }
 ```
 
-Used by `add-on init` and `starter init` to detect changes.
+Used by `add-on init` and `template init` to detect changes.

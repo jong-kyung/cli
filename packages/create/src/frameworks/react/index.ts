@@ -25,9 +25,9 @@ export function createFrameworkDefinition(): FrameworkDefinition {
   )
 
   return {
-    id: 'react-cra',
+    id: 'react',
     name: 'React',
-    description: 'Templates for React CRA',
+    description: 'Templates for React',
     version: '0.1.0',
     base: files,
     addOns,
